@@ -58,4 +58,9 @@ class User extends Authenticatable
     {
         return $this->role === 'user';
     }
+
+    public function transaksiSewa()
+    {
+        return $this->hasMany(TransaksiSewa::class);
+    }
 }

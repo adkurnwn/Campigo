@@ -18,7 +18,7 @@ class HomeController extends Controller
             if ($role == 'user') {
                 return view('home');
             } else if ($role == 'admin') {
-                return view('admin');
+                return view('home');
             } else {
                 return view('home');
             }
@@ -33,7 +33,7 @@ class HomeController extends Controller
             if ($role == 'user') {
                 return view('home');
             } else if ($role == 'admin') {
-                return view('admin');
+                return view('home');
             }
         }else {
             return view('home');
