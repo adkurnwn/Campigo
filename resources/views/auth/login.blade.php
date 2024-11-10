@@ -30,10 +30,12 @@
                 @enderror
             </div>
 
+
             <!-- Remember Me -->
             <div class="flex items-center">
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm focus:ring-teal-500" name="remember">
                 <label for="remember_me" class="ms-2 text-sm text-gray-700">{{ __('Remember me') }}</label>
+                
             </div>
 
             <!-- Actions -->
@@ -44,10 +46,15 @@
                     </a>
                 @endif
 
+                
+
                 <button type="submit" class="px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white font-bold rounded-full shadow-lg hover:bg-gradient-to-l hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
                     {{ __('Log in') }}
                 </button>
+
             </div>
+            <a href="{{ route('register') }}" class="text-sm text-teal-600 hover:text-teal-700 font-medium transition duration-300"> 
+                {{ __('Belum punya akun?') }}
         </form>
     </div>
 </x-guest-layout>

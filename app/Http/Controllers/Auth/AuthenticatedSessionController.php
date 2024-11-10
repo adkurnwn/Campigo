@@ -32,10 +32,10 @@ class AuthenticatedSessionController extends Controller
     if (Auth::user()->role === 'admin') {
         return redirect()->intended('/admin');
     } elseif (Auth::user()->role === 'user') {
-        return redirect()->intended('/home');
+        return redirect()->intended('/');
     }
 
-    return redirect()->intended('/home'); // Fallback
+    return redirect()->intended('/'); // Fallback
 }
 
     /**

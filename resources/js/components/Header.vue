@@ -40,7 +40,7 @@
                 </button>
             </div>
         </div>
-        <a v-else href="/register"
+        <a v-else href="/login"
             class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105">
             Book Now
         </a>
