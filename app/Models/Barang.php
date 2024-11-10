@@ -25,6 +25,14 @@ class Barang extends Model implements HasMedia
         'updated_at',
     ];
 
+    protected static function booted()
+    {
+        static::retrieved(function ($model) {
+            $media = $model->getFirstMedia();
+            $model->image = $media ? $media->id . '/' . $media->file_name : null;
+        });
+    }
+
     public function transaksiSewa()
     {
         return $this->hasMany(TransaksiSewa::class);

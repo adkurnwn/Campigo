@@ -43,6 +43,8 @@ class BarangResource extends Resource
                         TextInput::make('nama')->required(),
                         TextInput::make('merk'),
                         TextInput::make('harga')->numeric()->prefix('Rp ')->required(),
+                        TextInput::make('berat')->numeric()->suffix('gram')->required(),
+                        TextInput::make('stok')->numeric()->required(),
                         Select::make('kategori')
                             ->options([
                                 'Tenda' => 'Tenda',

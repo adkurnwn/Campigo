@@ -1,7 +1,9 @@
-import './bootstrap';
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import Header from './components/Header.vue'
 
-import Alpine from 'alpinejs';
-
-window.Alpine = Alpine;
-
-Alpine.start();
+const app = createApp(App)
+app.component('Header', Header)
+app.use(router)
+app.mount('#app')

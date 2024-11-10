@@ -25,7 +25,8 @@ return new class extends Migration
             $table->json('generated_conversions');
             $table->json('responsive_images');
             $table->unsignedInteger('order_column')->nullable()->index();
-
+            $table->unsignedBigInteger('barang_id')->nullable();
+            $table->foreign('barang_id')->references('id')->on('barangs')->onDelete('cascade');
             $table->nullableTimestamps();
         });
     }

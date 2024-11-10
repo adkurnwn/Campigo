@@ -1,42 +1,36 @@
 <?php
-
+// app/Http/Controllers/HomeController.php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Model\User;
-use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
     public function index()
     {
-        if (Auth::id()) {        
-            $role = Auth::user()->role; 
-            if ($role == 'user') {
-                return view('home');
-            } else if ($role == 'admin') {
-                return view('home');
-            } else {
-                return view('home');
-            }
-        }
-        
+        return view('home');
+    }
+}
+
+// app/Http/Controllers/ProfileController.php
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ProfileController extends Controller
+{
+    public function edit()
+    {
+        return view('profile.edit');
     }
 
-    public function __invoke(Request $request)
+    public function update(Request $request)
     {
-        if (Auth::id()) {        
-            $role = Auth::user()->role; 
-            if ($role == 'user') {
-                return view('home');
-            } else if ($role == 'admin') {
-                return view('home');
-            }
-        }else {
-            return view('home');
-        }
+        // Update profile logic
+    }
+
+    public function destroy()
+    {
+        // Delete profile logic
     }
 }
