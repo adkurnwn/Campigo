@@ -3,6 +3,8 @@ import Home from '../views/Home.vue'
 import Products from '../views/Products.vue'
 import Contact from '../views/Contact.vue'
 import Profile from '../views/Profile.vue'
+import Sewa from '../views/Sewa.vue'
+
 
 const routes = [
     {
@@ -24,6 +26,11 @@ const routes = [
         path: '/profile',
         name: 'profile',
         component: Profile
+    },
+    {
+        path: '/myrent',
+        name: 'sewa',
+        component: Sewa
     },
 ]
 

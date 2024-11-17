@@ -2,59 +2,121 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
+
+    public function getInfo(Request $request): JsonResponse
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = Auth::user();
+        return response()->json($user);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): JsonResponse
     {
-        $request->user()->fill($request->validated());
+        try {
+            $user = Auth::user();
+            
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            ]);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+            $user->fill($validated);
+
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update profile',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'password' => ['required', 'string'],
+            ]);
+
+            $user = Auth::user();
+
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'errors' => [
+                        'password' => ['The provided password is incorrect.']
+                    ]
+                ], 422);
+            }
+
+            // Update using the update method with quoted value
+            $user->update([
+                'statususer' => 'nonactive'  // Make sure this matches your database enum/varchar value
+            ]);
+
+            Auth::logout();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Account deactivated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to deactivate account',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function password(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'errors' => [
+                    'current_password' => ['The provided password does not match your current password.']
+                ]
+            ], 422);
         }
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
         $user->update([
-            'statususer' => 'nonactive', // Or whatever status you want
+            'password' => Hash::make($validated['password'])
         ]);
-    
-        // Optionally log the user out after deactivating the account
-        Auth::logout();
 
-        return Redirect::to('/');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password updated successfully'
+        ]);
     }
 }

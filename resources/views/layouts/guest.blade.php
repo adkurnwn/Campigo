@@ -19,6 +19,10 @@
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
 
         <x-nav-link :href="route('home')">
+            <img src="{{ asset('storage/img/campigo.png') }}" alt="Campigo Logo" class="h-12 w-auto" />
+        </x-nav-link>
+        
+        <x-nav-link :href="route('home')">
             <h1 class="text-3xl font-extrabold text-teal-700">Campigo</h1>
         </x-nav-link>
         <div class="w-full sm:max-w-md mt-3 mb-3 px-3 py-2 bg-gradient-to-r from-teal-100 via-green-100 to-blue-100 shadow-md overflow-hidden sm:rounded-2xl">

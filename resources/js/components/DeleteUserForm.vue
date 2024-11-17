@@ -1,8 +1,8 @@
 <template>
-  <section class="space-y-6">
-    <header>
-      <h2 class="text-lg font-medium text-gray-900">Delete Account</h2>
-      <p class="mt-1 text-sm text-gray-600">
+  <section class="p-6 space-y-6">
+    <header class="space-y-2">
+      <h2 class="text-3xl font-playfair font-bold text-gray-900 tracking-tight">Delete Account</h2>
+      <p class="text-xl font-light italic text-gray-600">
         Once your account is deleted, all of its resources and data will be permanently deleted. 
         Before deleting your account, please download any data or information that you wish to retain.
       </p>
@@ -10,48 +10,60 @@
 
     <button
       @click="showModal = true"
-      class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md"
+      class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center justify-center"
     >
       Delete Account
     </button>
 
-    <div v-if="showModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg max-w-md">
-        <h2 class="text-lg font-medium text-gray-900">
-          Are you sure you want to delete your account?
-        </h2>
+    <!-- Modal -->
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showModal" class="fixed inset-0 bg-gray-500/75 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full m-4 shadow-xl transform transition-all">
+          <h2 class="text-2xl font-playfair font-bold text-gray-900 mb-4">
+            Are you sure you want to delete your account?
+          </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
-          Once your account is deleted, all of its resources and data will be permanently deleted. 
-          Please enter your password to confirm you would like to permanently delete your account.
-        </p>
+          <p class="text-base text-gray-600 mb-6">
+            Once your account is deleted, all of its resources and data will be permanently deleted. 
+            Please enter your password to confirm you would like to permanently delete your account.
+          </p>
 
-        <div class="mt-6">
-          <input
-            v-model="password"
-            type="password"
-            class="mt-1 block w-3/4 rounded-md border-gray-300 shadow-sm"
-            placeholder="Password"
-          />
-          <span v-if="error" class="text-red-600 text-sm">{{ error }}</span>
-        </div>
+          <div class="space-y-4">
+            <div>
+              <input
+                v-model="password"
+                type="password"
+                class="w-full px-4 py-3 rounded-lg border-2 border-red-100 focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50"
+                placeholder="Password"
+              />
+              <span v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</span>
+            </div>
 
-        <div class="mt-6 flex justify-end">
-          <button
-            @click="showModal = false"
-            class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-700 rounded-md mr-3"
-          >
-            Cancel
-          </button>
-          <button
-            @click="deleteAccount"
-            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md"
-          >
-            Delete Account
-          </button>
+            <div class="flex items-center justify-end space-x-4">
+              <button
+                @click="showModal = false"
+                class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transform transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                @click="deleteAccount"
+                class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </section>
 </template>
 

@@ -12,10 +12,12 @@ Route::get('/api/auth-status', function () {
     return response()->json(['authenticated' => Auth::check()]);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    // Profile routes using existing ProfileController methods
-    Route::get('/user', [ProfileController::class, 'edit'])->name('api.profile.edit');
-    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('api.profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'password'])->name('api.profile.password');
-    Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('api.profile.destroy');
-});
+Route::post('/api/cart/add/{id}', [BarangController::class, 'addToCart']);
+Route::get('/api/cart', [BarangController::class, 'viewCart']);
+Route::delete('/api/cart/remove/{id}', [BarangController::class, 'removeFromCart']);
+Route::put('/api/cart/update/{id}', [BarangController::class, 'updateCart']);
+
+Route::get('/api/user/', [ProfileController::class, 'getInfo']);
+Route::patch('/api/profile/update', [ProfileController::class, 'update']);
+Route::put('/api/profile/password', [ProfileController::class, 'password']);
+Route::delete('/api/profile/delete', [ProfileController::class, 'destroy']);
