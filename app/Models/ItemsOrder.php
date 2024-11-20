@@ -15,7 +15,7 @@ class ItemsOrder extends Model
         'transaksi_sewa_id',
         'barang_id',
         'quantity',
-        'price_per_item',
+        'price_per_day',
         'subtotal'
     ];
 
