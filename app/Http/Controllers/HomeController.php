@@ -13,24 +13,24 @@ class HomeController extends Controller
 }
 
 // app/Http/Controllers/ProfileController.php
-namespace App\Http\Controllers;
+// namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 
-class ProfileController extends Controller
-{
-    public function edit()
-    {
-        return view('profile.edit');
-    }
+// class ProfileController extends Controller
+// {
+//     public function edit()
+//     {
+//         return view('profile.edit');
+//     }
 
-    public function update(Request $request)
-    {
-        // Update profile logic
-    }
+//     public function update(Request $request)
+//     {
+//         // Update profile logic
+//     }
 
-    public function destroy()
-    {
-        // Delete profile logic
-    }
-}
+//     public function destroy()
+//     {
+//         // Delete profile logic
+//     }
+// }

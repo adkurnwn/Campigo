@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ItemsOrder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TransaksiSewa extends Model
 {
     use HasFactory;
 
-    public function barang()
+    protected $fillable = [
+        'id',
+        'user_id',
+        'total_harga',
+        'metode_bayar',
+        'tgl_pinjam',
+        'tgl_kembali'
+    ];
+
+    public function itemsOrders()
     {
-        return $this->belongsTo(Barang::class);
+        return $this->hasMany(ItemsOrder::class);
     }
 
     public function pelanggan()

@@ -5,7 +5,7 @@
             for="search-bar">
             <input 
                 id="search-bar" 
-                placeholder="your keyword here"
+                placeholder="Cari alat camping"
                 class="px-6 py-2 flex-1 rounded-md outline-none bg-white"
                 type="text"
                 v-model="searchQuery"

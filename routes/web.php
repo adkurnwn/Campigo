@@ -16,6 +16,7 @@ Route::get('/forgot-password', function () {
 
 
 require __DIR__.'/api.php';
+require __DIR__.'/auth.php';
 
 // Ensure this catch-all route is at the end of the file
 Route::get('{any}', function () {

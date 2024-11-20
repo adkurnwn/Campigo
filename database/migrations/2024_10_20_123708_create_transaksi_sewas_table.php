@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('transaksi_sewas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('barang_id')->constrained('barangs')->onDelete('cascade');
-            $table->integer('jumlah');
             $table->double('total_harga');
+            $table->string('metode_bayar');
             $table->date('tgl_pinjam');
             $table->date('tgl_kembali');
             $table->timestamps();

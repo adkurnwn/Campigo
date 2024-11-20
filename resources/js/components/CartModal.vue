@@ -5,6 +5,7 @@ import ModalComponent from '../components/ModalComponent.vue';
 import axios from 'axios';
 import JadwalModal from './JadwalModal.vue';
 import BayarDPModal from './BayarDPModal.vue';
+import { useToast } from '../composables/useToast';
 
 // Add CSRF token to axios headers
 axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -14,6 +15,8 @@ const cartItems = ref([]);
 const isLoading = ref(false);
 const currentView = ref('cart'); // Add this near other refs
 const selectedDays = ref(0);
+const selectedStartDate = ref('');
+const selectedEndDate = ref('');
 
 const cartTotal = computed(() => {
     return cartItems.value.reduce((sum, item) => sum + item.harga * item.quantity, 0);
@@ -74,11 +77,31 @@ const backToCart = () => {
 
 const switchToPayment = (data) => {
     selectedDays.value = data.days;
+    selectedStartDate.value = data.startDate;
+    selectedEndDate.value = data.endDate;
     currentView.value = 'payment';
 };
 
 const backToJadwal = () => {
     currentView.value = 'jadwal';
+};
+
+const { showSuccessToast } = useToast();
+
+const handleCheckoutSuccess = ({ data, message }) => {
+    // Show toast using the composable
+    showSuccessToast(message);
+    
+    // Reset cart view
+    currentView.value = 'cart';
+    
+    // Clear cart items
+    cartItems.value = [];
+    
+    // Close modal after toast shows
+    setTimeout(() => {
+        closeModal();
+    }, 0);
 };
 
 defineExpose({ openModal });
@@ -165,7 +188,13 @@ defineExpose({ openModal });
         <JadwalModal v-else-if="currentView === 'jadwal'" @back="backToCart" @proceed-to-payment="switchToPayment" />
 
         <!-- Payment View -->
-        <BayarDPModal v-else-if="currentView === 'payment'" @back="backToJadwal" :total="cartTotal"
-            :days="selectedDays" />
+        <BayarDPModal v-else-if="currentView === 'payment'" 
+            @back="backToJadwal" 
+            @checkout-success="handleCheckoutSuccess"
+            :total="cartTotal"
+            :days="selectedDays"
+            :start-date="selectedStartDate"
+            :end-date="selectedEndDate"
+            :cart-items="cartItems" />
     </ModalComponent>
 </template>

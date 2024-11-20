@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     total: {
@@ -9,10 +10,24 @@ const props = defineProps({
     days: {
         type: Number,
         required: true
+    },
+    startDate: {
+        type: String,
+        required: true
+    },
+    endDate: {
+        type: String,
+        required: true
+    },
+    cartItems: {
+        type: Array,
+        required: true
     }
 });
 
-const emit = defineEmits(['back']);
+const emit = defineEmits(['back', 'checkout-success']);
+const isLoading = ref(false);
+const error = ref('');
 
 const dpAmount = computed(() => props.total * props.days * 0.5);
 
@@ -25,10 +40,47 @@ const formatCurrency = (value) => {
 
 const selectedPaymentMethod = ref('');
 const isPaymentValid = computed(() => selectedPaymentMethod.value !== '');
+
+const submitOrder = async () => {
+    if (!isPaymentValid.value) return;
+    
+    isLoading.value = true;
+    error.value = '';
+    
+    try {
+        const rawCartItems = props.cartItems.map(item => ({
+            barang_id: item.id,
+            quantity: item.quantity,
+            price_per_day: item.harga
+        }));
+
+        const response = await axios.post("/api/pesan", {
+            payment_method: selectedPaymentMethod.value,
+            cart_items: rawCartItems,
+            start_date: props.startDate,
+            end_date: props.endDate,
+            total_amount: props.total * props.days,
+            dp_amount: dpAmount.value
+        });
+
+        // Emit both the response data and success message
+        emit('checkout-success', {
+            data: response.data,
+            message: 'Pesanan berhasil dibuat!'
+        });
+
+    } catch (e) {
+        error.value = e.response?.data?.message || 'Terjadi kesalahan saat memproses pesanan';
+    } finally {
+        isLoading.value = false;
+    }
+};
 </script>
 
 <template>
     <div class="p-6">
+        <!-- Remove toast notification from here -->
+
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-playfair font-bold text-gray-900 tracking-tight">Pembayaran DP</h2>
             <button @click="$emit('back')" 
@@ -61,9 +113,16 @@ const isPaymentValid = computed(() => selectedPaymentMethod.value !== '');
                 </div>
             </div>
 
-            <button :disabled="!isPaymentValid"
+            <div v-if="error" 
+                class="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                {{ error }}
+            </div>
+
+            <button @click="submitOrder"
+                :disabled="!isPaymentValid || isLoading"
                 class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none">
-                Bayar Sekarang
+                <span v-if="isLoading">Memproses...</span>
+                <span v-else>Bayar Sekarang</span>
             </button>
         </div>
     </div>

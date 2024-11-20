@@ -103,4 +103,20 @@ class BarangController extends Controller
         return response()->json(['error' => 'Produk tidak ditemukan'], 404);
     }
 
+    public function show($id)
+    {
+        try {
+            $barang = Barang::findOrFail($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $barang
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product not found'
+            ], 404);
+        }
+    }
+
 }

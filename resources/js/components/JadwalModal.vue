@@ -45,11 +45,13 @@ const validateDates = () => {
 
 const proceedToPayment = () => {
     if (validateDates()) {
-        emit('proceedToPayment', { 
+        const scheduleData = { 
             startDate: startDate.value, 
             endDate: endDate.value,
             days: selectedDays.value 
-        });
+        };
+        console.log('Schedule Data:', scheduleData);
+        emit('proceedToPayment', scheduleData);
     }
 };
 </script>

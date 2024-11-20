@@ -16,51 +16,39 @@
         <!-- Links (hidden on small screens, shown on large screens) -->
         <ul id="nav-links" class="hidden lg:flex space-x-12 font-bold">
             <li>
-                <router-link 
-                    to="/" 
-                    class="relative py-2 transition-all duration-300 ease-in-out hover:text-black"
+                <router-link to="/" class="relative py-2 transition-all duration-300 ease-in-out hover:text-black"
                     :class="{
                         'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent': $route.path === '/',
                         'text-gray-600': $route.path !== '/'
-                    }"
-                >
+                    }">
                     <span>Home</span>
-                    <span 
+                    <span
                         class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 transform origin-left transition-transform duration-300 ease-out"
-                        :class="$route.path === '/' ? 'scale-x-100' : 'scale-x-0'"
-                    ></span>
+                        :class="$route.path === '/' ? 'scale-x-100' : 'scale-x-0'"></span>
                 </router-link>
             </li>
             <li>
-                <router-link 
-                    to="/products" 
-                    class="relative py-2 transition-all duration-300 ease-in-out hover:text-black"
-                    :class="{
+                <router-link to="/products"
+                    class="relative py-2 transition-all duration-300 ease-in-out hover:text-black" :class="{
                         'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent': $route.path === '/products',
                         'text-gray-600': $route.path !== '/products'
-                    }"
-                >
+                    }">
                     <span>Products</span>
-                    <span 
+                    <span
                         class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 transform origin-left transition-transform duration-300 ease-out"
-                        :class="$route.path === '/products' ? 'scale-x-100' : 'scale-x-0'"
-                    ></span>
+                        :class="$route.path === '/products' ? 'scale-x-100' : 'scale-x-0'"></span>
                 </router-link>
             </li>
             <li>
-                <router-link 
-                    to="/contact" 
-                    class="relative py-2 transition-all duration-300 ease-in-out hover:text-black"
-                    :class="{
+                <router-link to="/contact"
+                    class="relative py-2 transition-all duration-300 ease-in-out hover:text-black" :class="{
                         'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent': $route.path === '/contact',
                         'text-gray-600': $route.path !== '/contact'
-                    }"
-                >
+                    }">
                     <span>Contact</span>
-                    <span 
+                    <span
                         class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 transform origin-left transition-transform duration-300 ease-out"
-                        :class="$route.path === '/contact' ? 'scale-x-100' : 'scale-x-0'"
-                    ></span>
+                        :class="$route.path === '/contact' ? 'scale-x-100' : 'scale-x-0'"></span>
                 </router-link>
             </li>
         </ul>
@@ -98,24 +86,39 @@
             </button>
 
             <!-- Desktop Dropdown Menu -->
-            <div v-show="isDropdownOpen"
-                class="absolute right-0 mt-12 w-48 rounded-md shadow-lg py-1 z-50 bg-gradient-to-r from-teal-600/90 via-green-600/90 to-blue-600/90 backdrop-blur-sm">
-                <router-link to="/profile"
-                    class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors flex justify-between items-center">
-                    Profile
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </router-link>
-                <div class="border-t border-white/20 my-1"></div>
-                <button @click="handleLogout"
-                    class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-red-500/20 transition-colors flex justify-between items-center">
-                    Logout
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                </button>
-            </div>
+            <Transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="transform scale-95 opacity-0"
+                enter-to-class="transform scale-100 opacity-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="transform scale-100 opacity-100"
+                leave-to-class="transform scale-95 opacity-0"
+            >
+                <div 
+                    v-show="isDropdownOpen"
+                    class="absolute right-0 mt-12 w-48 rounded-md shadow-lg py-1 z-50 bg-gradient-to-r from-teal-600/90 via-green-600/90 to-blue-600/90 backdrop-blur-sm origin-top-right"
+                >
+                    <router-link 
+                        to="/profile"
+                        class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors flex justify-between items-center"
+                    >
+                        Profile
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </router-link>
+                    <div class="border-t border-white/20 my-1"></div>
+                    <button 
+                        @click="handleLogout"
+                        class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-red-500/20 transition-colors flex justify-between items-center"
+                    >
+                        Logout
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
+                </div>
+            </Transition>
         </div>
         <a v-else href="/login"
             class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105">
@@ -156,23 +159,21 @@
     <CartModal ref="cartModalRef" />
 
     <!-- Logout Confirmation Modal -->
-    <Transition
-        enter-active-class="ease-out duration-300"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="ease-in duration-200"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-    >
+    <Transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100"
+        leave-active-class="ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0">
         <div v-if="showLogoutModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-50">
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div
+                        class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                         <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                             <div class="sm:flex sm:items-start">
-                                <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                <div
+                                    class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                                     </svg>
                                 </div>
                                 <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
@@ -184,16 +185,12 @@
                             </div>
                         </div>
                         <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                            <button 
-                                @click="confirmLogout"
-                                class="inline-flex w-full justify-center rounded-md bg-gradient-to-r from-red-600 to-red-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:from-red-700 hover:to-red-800 sm:ml-3 sm:w-auto"
-                            >
+                            <button @click="confirmLogout"
+                                class="inline-flex w-full justify-center rounded-md bg-gradient-to-r from-red-600 to-red-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:from-red-700 hover:to-red-800 sm:ml-3 sm:w-auto">
                                 Logout
                             </button>
-                            <button 
-                                @click="showLogoutModal = false"
-                                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                            >
+                            <button @click="showLogoutModal = false"
+                                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
                                 Batal
                             </button>
                         </div>
