@@ -52,8 +52,8 @@ class TransaksiSewaController extends Controller
                 'tgl_kembali' => $validated['end_date'],
                 'total_harga' => $validated['total_amount'],
                 'dp_amount' => $validated['dp_amount'],
-                'payment_method' => $validated['payment_method'],
-                'status' => 'pending'
+                'metode_bayar' => $validated['payment_method'],
+                'status' => 'belum bayar'
             ]);
 
             // Create ItemsOrder for each item
@@ -128,7 +128,7 @@ class TransaksiSewaController extends Controller
     public function getUserTransactions()
     {
         try {
-            $transactions = TransaksiSewa::with(['itemsOrders.barang', 'pelanggan'])
+            $transactions = TransaksiSewa::with(['itemsOrders.barang', 'user'])
                 ->where('user_id', Auth::id())
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -163,6 +163,35 @@ class TransaksiSewaController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error fetching transactions: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $transaction = TransaksiSewa::findOrFail($id);
+            
+            // Ensure the user owns this transaction
+            if ($transaction->user_id !== Auth::id()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            $transaction->update([
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transaction status updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error updating transaction status: ' . $e->getMessage()
             ], 500);
         }
     }

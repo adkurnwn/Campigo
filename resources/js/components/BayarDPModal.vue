@@ -106,10 +106,22 @@ const submitOrder = async () => {
                         class="w-full bg-white rounded-lg p-3 border-2 border-transparent focus:border-teal-600 focus:outline-none transition-all duration-300">
                         <option value="" disabled>Pilih metode pembayaran</option>
                         <option value="tunai">Tunai</option>
-                        <option value="transferbank" disabled>Transfer Bank (belum tersedia)</option>
+                        <option value="transferbank">Transfer Bank</option>
                         <option value="ewallet" disabled>E-Wallet (belum tersedia)</option>
                         <option value="qris" disabled>QRIS (belum tersedia)</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- Bank Transfer Information -->
+            <div v-if="selectedPaymentMethod === 'transferbank'" class="space-y-3 mt-4">
+                <div class="bg-white border border-teal-200 rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-3">Informasi Pembayaran Transfer Bank</h4>
+                    <div class="space-y-2">
+                        <p class="text-gray-600">Bank: <span class="font-medium text-gray-900">BCA</span></p>
+                        <p class="text-gray-600">No. Rekening: <span class="font-medium text-gray-900">1234567890</span></p>
+                        <p class="text-gray-600">Atas Nama: <span class="font-medium text-gray-900">PT Campigo Indonesia</span></p>
+                    </div>
                 </div>
             </div>
 

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\JaminanKtpController;
+use App\Http\Controllers\PaymentProofController;
 use App\Http\Controllers\TransaksiSewaController;
 
 // Add this route to handle requests for Barang data
@@ -22,6 +24,14 @@ Route::put('/api/cart/update/{id}', [BarangController::class, 'updateCart']);
 Route::post('/api/pesan', [TransaksiSewaController::class, 'store'])->name('pesan.store');
 
 Route::get('/api/user-transactions', [TransaksiSewaController::class, 'getUserTransactions']);
+
+// Add new route for payment proof upload
+Route::post('/api/upload-payment-proof', [PaymentProofController::class, 'store']);
+
+// Add new route for KTP upload
+Route::post('/api/upload-ktp', [JaminanKtpController::class, 'store']);
+
+Route::put('/api/transaction/{id}/update-status', [TransaksiSewaController::class, 'updateStatus']);
 
 Route::get('/api/user/', [ProfileController::class, 'getInfo']);
 Route::patch('/api/profile/update', [ProfileController::class, 'update']);

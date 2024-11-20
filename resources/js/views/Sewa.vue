@@ -17,11 +17,18 @@
                 <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ transaction.id }}</h3>
-                        <span :class="[
-                            'px-3 py-1 rounded-full text-sm font-medium',
-                            getStatusClass(transaction.status)
-                        ]">
-                            {{ transaction.status || 'Pending' }}
+                        <span 
+                            class="px-3 py-1 text-sm font-medium rounded-full"
+                            :class="{
+                                'bg-yellow-100 text-yellow-800': transaction.status === 'pending',
+                                'bg-green-100 text-green-800': transaction.status === 'pembayaran terkonfirmasi',
+                                'bg-red-100 text-red-800': transaction.status === 'dibatalkan',
+                                'bg-blue-100 text-blue-800': transaction.status === 'selesai',
+                                'bg-teal-100 text-teal-800': transaction.status === 'berlangsung',
+                                'bg-gray-100 text-gray-800': transaction.status === 'belum bayar'
+                            }"
+                        >
+                            {{ transaction.status }}
                         </span>
                     </div>
                 </div>
@@ -123,6 +130,31 @@
                         <span class="font-medium text-gray-900">Metode Pembayaran:</span>
                         <span class="ml-2">{{ transaction.payment_method }}</span>
                     </div>
+
+                    <!-- Upload Payment Button -->
+                    <div v-if="transaction.status === 'belum bayar'" class="border-t border-gray-200 pt-4">
+                        <button 
+                            @click="openUploadModal(transaction)"
+                            class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                        >
+                            Upload Bukti Pembayaran
+                        </button>
+                    </div>
+
+                    <!-- Pickup Information and Button -->
+                    <div v-if="transaction.status === 'pembayaran terkonfirmasi'" class="border-t border-gray-200 pt-4">
+                        <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4 rounded-lg mb-4">
+                            <h4 class="text-teal-800 font-medium mb-2">Informasi Pengambilan:</h4>
+                            <p class="text-teal-600">Silakan ambil barang di toko kami dengan menunjukkan ID transaksi: #{{ transaction.id }}</p>
+                            <p class="text-teal-600 mt-1">Alamat: Jl. Telekomunikasi No. 1, Terusan Buah Batu, Bandung</p>
+                        </div>
+                        <button 
+                            @click="openWebcam(transaction)"
+                            class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                        >
+                            Ambil Barang
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,6 +167,21 @@
                 @close="closeModal"
             />
         </ProductDetailModal>
+
+        <!-- Payment Proof Upload Modal -->
+        <PaymentProofModal
+            :show="showUploadModal"
+            :transaction="selectedTransaction"
+            @close="closeUploadModal"
+            @success="fetchTransactions"
+        />
+
+        <!-- Add WebcamModal -->
+        <WebcamModal
+            :show="showWebcamModal"
+            @close="closeWebcamModal"
+            @captured="handleCapturedImage"
+        />
     </div>
 </template>
 
@@ -142,19 +189,27 @@
 import axios from 'axios';
 import ProductDetail from '../components/ProductDetail.vue';
 import ProductDetailModal from '../components/ProductDetailModal.vue';
+import PaymentProofModal from '../components/PaymentProofModal.vue';
+import WebcamModal from '../components/WebcamModal.vue';
 
 export default {
     name: 'Sewa',
     components: {
         ProductDetail,
-        ProductDetailModal
+        ProductDetailModal,
+        PaymentProofModal,
+        WebcamModal
     },
     data() {
         return {
             transactions: [],
             loading: true,
             openTransactions: [], // Add this to track open dropdowns
-            selectedProduct: null
+            selectedProduct: null,
+            showUploadModal: false,
+            selectedTransaction: null,
+            showWebcamModal: false,
+            currentTransaction: null
         }
     },
     created() {
@@ -209,6 +264,51 @@ export default {
         },
         closeModal() {
             this.selectedProduct = null;
+        },
+        openUploadModal(transaction) {
+            this.selectedTransaction = transaction;
+            this.showUploadModal = true;
+        },
+        closeUploadModal() {
+            this.showUploadModal = false;
+            this.selectedTransaction = null;
+        },
+        openWebcam(transaction) {
+            this.currentTransaction = transaction;
+            this.showWebcamModal = true;
+        },
+        closeWebcamModal() {
+            this.showWebcamModal = false;
+            this.currentTransaction = null;
+        },
+        async updateStatus(transactionId, newStatus) {
+            try {
+                await this.closeWebcamModal();
+                await axios.put(`/api/transaction/${transactionId}/update-status`, {
+                    status: newStatus
+                });
+                await this.fetchTransactions();
+            } catch (error) {
+                console.error('Error updating transaction status:', error);
+            }
+        },
+        async handleCapturedImage(imageData) {
+            try {
+                // First upload the KTP image
+                await axios.post('/api/upload-ktp', {
+                    ktp_image: imageData,
+                    transaction_id: this.currentTransaction.id
+                });
+
+                // Then update the status
+                await this.updateStatus(this.currentTransaction.id, 'berlangsung');
+                
+                // Finally close the modal
+                this.closeWebcamModal();
+            } catch (error) {
+                console.error('Error processing captured image:', error);
+                // You might want to show an error message to the user here
+            }
         }
     }
 }

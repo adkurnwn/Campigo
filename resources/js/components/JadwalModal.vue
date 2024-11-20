@@ -2,7 +2,12 @@
 import { ref, computed } from 'vue';
 
 const emit = defineEmits(['back', 'proceedToPayment']);
-const startDate = ref('');
+
+const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0];
+};
+
+const startDate = ref(getTodayDate());
 const endDate = ref('');
 const errorMessage = ref('');
 

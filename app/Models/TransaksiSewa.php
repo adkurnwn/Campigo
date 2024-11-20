@@ -16,7 +16,8 @@ class TransaksiSewa extends Model
         'total_harga',
         'metode_bayar',
         'tgl_pinjam',
-        'tgl_kembali'
+        'tgl_kembali',
+        'status',
     ];
 
     public function itemsOrders()
@@ -24,8 +25,24 @@ class TransaksiSewa extends Model
         return $this->hasMany(ItemsOrder::class);
     }
 
-    public function pelanggan()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    public function paymentProof()
+    {
+        return $this->hasOne(PaymentProof::class);
+    }
+
+    public function jaminanKtp()
+    {
+        return $this->hasOne(JaminanKtp::class);
+    }
+
+    // Remove or comment out the pelanggan relationship since we'll use user instead
+    // public function pelanggan()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
 }
