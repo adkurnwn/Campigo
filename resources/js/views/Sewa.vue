@@ -2,16 +2,33 @@
     <div class="container mx-auto px-4">
         <h1 class="text-3xl font-playfair font-bold text-gray-900 tracking-tight mb-8">Sewaan Saya</h1>
         
-        <div v-if="loading" class="text-center p-8">
+        <!-- Status Filters -->
+        <div class="flex flex-wrap gap-3 mb-8 border-b pb-6">
+            <button
+                v-for="status in availableStatuses"
+                :key="status"
+                @click="toggleStatusFilter(status)"
+                :class="{
+                    'text-white bg-gradient-to-r from-teal-600 via-green-600 to-blue-600': activeStatus === status,
+                    'text-teal-600 bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10': activeStatus !== status
+                }"
+                class="px-3 py-1 text-sm font-medium rounded-full transition-all duration-200 hover:scale-105"
+            >
+                {{ status }}
+            </button>
+        </div>
+
+        <div v-if="loading" class="text-center p-8 flex-col items-center">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent mx-auto"></div>
+            <div class="pt-2 text-teal-600">Memuat...</div>
         </div>
         
-        <div v-else-if="transactions.length === 0" class="text-center p-8 bg-gray-50 rounded-lg">
-            <p class="text-gray-600">Belum ada transaksi sewa.</p>
+        <div v-else-if="filteredTransactions.length === 0" class="text-center p-8 bg-gray-50 rounded-lg">
+            <p class="text-gray-600">Tidak ada transaksi yang sesuai filter.</p>
         </div>
         
         <div v-else class="grid grid-cols-1 gap-6">
-            <div v-for="transaction in transactions" :key="transaction.id" 
+            <div v-for="transaction in filteredTransactions" :key="transaction.id" 
                  class="bg-white rounded-lg shadow-md overflow-hidden">
                 <!-- Header Section -->
                 <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4">
@@ -20,12 +37,14 @@
                         <span 
                             class="px-3 py-1 text-sm font-medium rounded-full"
                             :class="{
+                                'bg-gray-100 text-gray-800': transaction.status === 'belum bayar',
                                 'bg-yellow-100 text-yellow-800': transaction.status === 'pending',
                                 'bg-green-100 text-green-800': transaction.status === 'pembayaran terkonfirmasi',
-                                'bg-red-100 text-red-800': transaction.status === 'dibatalkan',
-                                'bg-blue-100 text-blue-800': transaction.status === 'selesai',
                                 'bg-teal-100 text-teal-800': transaction.status === 'berlangsung',
-                                'bg-gray-100 text-gray-800': transaction.status === 'belum bayar'
+                                'bg-blue-100 text-blue-800': transaction.status === 'selesai',
+                                'bg-red-100 text-red-800': transaction.status === 'dibatalkan',
+                                
+                                
                             }"
                         >
                             {{ transaction.status }}
@@ -203,6 +222,17 @@ export default {
     data() {
         return {
             transactions: [],
+            filteredTransactions: [],
+            activeStatus: '', // Changed from array to string
+            availableStatuses: [
+                'belum bayar',
+                'pending',
+                'pembayaran terkonfirmasi',
+                'berlangsung',
+                'selesai',
+                'dibatalkan',
+                
+            ],
             loading: true,
             openTransactions: [], // Add this to track open dropdowns
             selectedProduct: null,
@@ -210,6 +240,19 @@ export default {
             selectedTransaction: null,
             showWebcamModal: false,
             currentTransaction: null
+        }
+    },
+    watch: {
+        activeStatus: {
+            handler() {
+                this.filterTransactions();
+            }
+        },
+        transactions: {
+            handler() {
+                this.filterTransactions();
+            },
+            immediate: true
         }
     },
     created() {
@@ -308,6 +351,18 @@ export default {
             } catch (error) {
                 console.error('Error processing captured image:', error);
                 // You might want to show an error message to the user here
+            }
+        },
+        toggleStatusFilter(status) {
+            this.activeStatus = this.activeStatus === status ? '' : status;
+        },
+        filterTransactions() {
+            if (!this.activeStatus) {
+                this.filteredTransactions = this.transactions;
+            } else {
+                this.filteredTransactions = this.transactions.filter(transaction => 
+                    transaction.status === this.activeStatus
+                );
             }
         }
     }

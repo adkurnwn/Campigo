@@ -9,7 +9,9 @@
             
             <div v-if="loading" class="text-center p-8">
                 <div class="animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent mx-auto"></div>
+                <div class="pt-2 text-teal-600">Memuat...</div>
             </div>
+            
 
             <div v-else>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
