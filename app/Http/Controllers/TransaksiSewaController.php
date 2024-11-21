@@ -32,6 +32,14 @@ class TransaksiSewaController extends Controller
     public function store(Request $request)
     {
         try {
+            // Check for active transactions first
+            if ($this->hasActiveTransaction()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak dapat melakukan penyewaan sebelum penyewaan sebelumnya selesai'
+                ], 422);
+            }
+
             // Validate request
             $validated = $request->validate([
                 'payment_method' => 'required|string',
@@ -194,5 +202,12 @@ class TransaksiSewaController extends Controller
                 'message' => 'Error updating transaction status: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function hasActiveTransaction()
+    {
+        return TransaksiSewa::where('user_id', Auth::id())
+            ->whereNotIn('status', ['selesai', 'dibatalkan'])
+            ->exists();
     }
 }

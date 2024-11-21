@@ -18,6 +18,7 @@ class TransaksiSewa extends Model
         'tgl_pinjam',
         'tgl_kembali',
         'status',
+        'updated_at',
     ];
 
     public function itemsOrders()

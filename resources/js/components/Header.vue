@@ -54,24 +54,25 @@
         </ul>
 
         <!-- Desktop Profile/Book Now Button -->
-        <div class="relative flex gap-2" v-if="isAuthenticated">
+        <div class="relative flex gap-2">
             <button @click="toggleCart"
-                class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white p-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105"
-                title="Cart">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.6 8M17 13l1.6 8M9 21h6" />
-                </svg>
+            class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white p-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105"
+            title="Cart">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.6 8M17 13l1.6 8M9 21h6" />
+            </svg>
             </button>
 
+            <div v-if="isAuthenticated" class="flex gap-2">
             <router-link to="/myrent"
                 class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white p-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105"
                 title="My Rentals">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
             </router-link>
 
@@ -79,9 +80,9 @@
                 class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white p-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105"
                 title="Profile">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
             </button>
 
@@ -95,35 +96,36 @@
                 leave-to-class="transform scale-95 opacity-0"
             >
                 <div 
-                    v-show="isDropdownOpen"
-                    class="absolute right-0 mt-12 w-48 rounded-md shadow-lg py-1 z-50 bg-gradient-to-r from-teal-600/90 via-green-600/90 to-blue-600/90 backdrop-blur-sm origin-top-right"
+                v-show="isDropdownOpen"
+                class="absolute right-0 mt-12 w-48 rounded-md shadow-lg py-1 z-50 bg-gradient-to-r from-teal-600/90 via-green-600/90 to-blue-600/90 backdrop-blur-sm origin-top-right"
                 >
-                    <router-link 
-                        to="/profile"
-                        class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors flex justify-between items-center"
-                    >
-                        Profile
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </router-link>
-                    <div class="border-t border-white/20 my-1"></div>
-                    <button 
-                        @click="handleLogout"
-                        class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-red-500/20 transition-colors flex justify-between items-center"
-                    >
-                        Logout
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                    </button>
+                <router-link 
+                    to="/profile"
+                    class="block px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors flex justify-between items-center"
+                >
+                    Profile
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </router-link>
+                <div class="border-t border-white/20 my-1"></div>
+                <button 
+                    @click="handleLogout"
+                    class="block w-full text-left px-4 py-2 text-sm text-white hover:bg-red-500/20 transition-colors flex justify-between items-center"
+                >
+                    Logout
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
                 </div>
             </Transition>
-        </div>
-        <a v-else href="/login"
+            </div>
+            <a v-else href="/login"
             class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105">
             Login
-        </a>
+            </a>
+        </div>
 
         <!-- Mobile Menu Button -->
         <button id="mobile-menu-button" class="lg:hidden" aria-label="Menu">

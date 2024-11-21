@@ -78,6 +78,7 @@ class TransaksiSewaResource extends Resource
                         'info' => 'berlangsung',
                     ]),
             ])
+            ->defaultSort('updated_at', 'desc')  // Add this line
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([

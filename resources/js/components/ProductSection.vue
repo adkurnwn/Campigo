@@ -6,33 +6,40 @@
                 @filter-change="handleFilterChange"
                 @sort-change="handleSortChange" 
             />
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <ProductCard
-                    v-for="barang in paginatedFilteredBarangs"
-                    :key="barang.id"
-                    :barang="barang"
-                />
-            </div>
             
-            <!-- Pagination Controls -->
-            <div class="flex justify-center items-center space-x-4 mt-12">
-                <button 
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                    class="w-24 px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-                >
-                    Previous
-                </button>
-                <span class="text-gray-600">
-                    Page {{ currentPage }} of {{ totalPages }}
-                </span>
-                <button 
-                    @click="nextPage"
-                    :disabled="currentPage >= totalPages"
-                    class="w-24 px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-                >
-                    Next
-                </button>
+            <div v-if="loading" class="text-center p-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent mx-auto"></div>
+            </div>
+
+            <div v-else>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <ProductCard
+                        v-for="barang in paginatedFilteredBarangs"
+                        :key="barang.id"
+                        :barang="barang"
+                    />
+                </div>
+                
+                <!-- Pagination Controls -->
+                <div class="flex justify-center items-center space-x-4 mt-12">
+                    <button 
+                        @click="prevPage"
+                        :disabled="currentPage === 1"
+                        class="w-24 px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                    >
+                        Previous
+                    </button>
+                    <span class="text-gray-600">
+                        Page {{ currentPage }} of {{ totalPages }}
+                    </span>
+                    <button 
+                        @click="nextPage"
+                        :disabled="currentPage >= totalPages"
+                        class="w-24 px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -50,6 +57,8 @@ const itemsPerPage = 6;
 
 const activeFilters = ref([]);
 const currentSort = ref('');
+
+const loading = ref(true);
 
 const filteredBarangs = computed(() => {
     if (activeFilters.value.length === 0) return barangs.value;
@@ -118,10 +127,13 @@ const handleSortChange = (sortValue) => {
 
 const fetchProducts = async () => {
     try {
+        loading.value = true;
         const response = await axios.get("/api/barang");
         barangs.value = response.data;
     } catch (error) {
         console.error("Error fetching barang:", error);
+    } finally {
+        loading.value = false;
     }
 };
 

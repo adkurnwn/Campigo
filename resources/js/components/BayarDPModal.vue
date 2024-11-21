@@ -25,10 +25,10 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['back', 'checkout-success']);
+const emit = defineEmits(['back', 'checkout-success', 'close-modal']);
 const isLoading = ref(false);
 const error = ref('');
-
+const hasActiveTransaction = ref(false);
 const dpAmount = computed(() => props.total * props.days * 0.5);
 
 const formatCurrency = (value) => {
@@ -44,10 +44,17 @@ const isPaymentValid = computed(() => selectedPaymentMethod.value !== '');
 const submitOrder = async () => {
     if (!isPaymentValid.value) return;
     
-    isLoading.value = true;
-    error.value = '';
-    
     try {
+        // Check authentication first
+        const authResponse = await axios.get('/api/auth-status');
+        if (!authResponse.data.authenticated) {
+            window.location.href = '/login';
+            return;
+        }
+
+        isLoading.value = true;
+        error.value = '';
+        
         const rawCartItems = props.cartItems.map(item => ({
             barang_id: item.id,
             quantity: item.quantity,
@@ -70,6 +77,10 @@ const submitOrder = async () => {
         });
 
     } catch (e) {
+        if (e.response?.status === 401) {
+            window.location.href = '/login';
+            return;
+        }
         error.value = e.response?.data?.message || 'Terjadi kesalahan saat memproses pesanan';
     } finally {
         isLoading.value = false;
