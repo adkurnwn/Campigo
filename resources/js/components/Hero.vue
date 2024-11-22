@@ -15,7 +15,7 @@
           </p>
 
       </div>
-          <router-link to="/products" class="font-semibold text-lg inline-flex items-center gap-2 bg-teal-600 text-white px-8 py-3 mt-8 rounded-md group-hover:bg-red-700 duration-300 ease-in-out">
+          <router-link to="/products" class="font-semibold text-lg inline-flex items-center gap-2 bg-teal-600 text-white px-8 py-3 mt-8 rounded-md hover:bg-teal-900 duration-300 ease-in-out">
             Explore Now →
           </router-link>
         </div>

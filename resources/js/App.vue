@@ -21,12 +21,14 @@
         </main>
         <div class="absolute inset-0 bg-gradient-to-b from-teal-100 to-white -z-10"></div>
         <Footer />
+        <ModalRecomendation />
     </div>
 </template>
 
 <script setup>
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
+import ModalRecomendation from './components/ModalRecomendation.vue';
 import { useToast } from './composables/useToast';
 
 const { showToast, toastMessage } = useToast();

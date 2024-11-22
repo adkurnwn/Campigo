@@ -156,4 +156,9 @@ class TransaksiSewaResource extends Resource
             'edit' => Pages\EditTransaksiSewa::route('/{record}/edit'),
         ];
     }
+
+    public static function canCreate(): bool
+   {
+      return false;
+   }
 }

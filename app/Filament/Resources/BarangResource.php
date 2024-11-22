@@ -25,6 +25,7 @@ use App\Filament\Resources\BarangResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use App\Filament\Resources\BarangResource\RelationManagers;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class BarangResource extends Resource
@@ -36,7 +37,7 @@ class BarangResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
+                Section::make()
                     ->schema([
                         TextInput::make('kode')->required()->unique(ignorable: fn($record) => $record),
                         TextInput::make('nama')->required(),
