@@ -48,6 +48,7 @@ class TransaksiSewaResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->sortable()
@@ -67,7 +68,7 @@ class TransaksiSewaResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('metode_bayar')
                     ->badge()
-                    ->label('Payment Method'),
+                    ->label('Metode Pembayaran'),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'danger' => 'dibatalkan',
@@ -161,4 +162,6 @@ class TransaksiSewaResource extends Resource
    {
       return false;
    }
+
+   
 }

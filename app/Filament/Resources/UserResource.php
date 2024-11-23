@@ -33,6 +33,7 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->columns([
                 TextColumn::make('index')
                     ->rowIndex()
@@ -42,7 +43,7 @@ class UserResource extends Resource
                 TextColumn::make('role')->sortable()->searchable(),
                 TextColumn::make('statususer')->label('Status User')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'nonactive' => 'warning',
                         'banned' => 'danger',
@@ -60,13 +61,14 @@ class UserResource extends Resource
             ])
             ->actions([
                 Action::make('toggleStatus')
-                    ->label(fn (User $record): string => $record->statususer === 'active' ? 'Blokir' : 'Aktifkan')
-                    ->color(fn (User $record): string => $record->statususer === 'active' ? 'danger' : 'success')
-                    ->icon(fn (User $record): string => $record->statususer === 'active' ? 'heroicon-m-no-symbol' : 'heroicon-m-check')
+                    ->label(fn(User $record): string => $record->statususer === 'active' ? 'Blokir' : 'Aktifkan')
+                    ->color(fn(User $record): string => $record->statususer === 'active' ? 'danger' : 'success')
+                    ->icon(fn(User $record): string => $record->statususer === 'active' ? 'heroicon-m-no-symbol' : 'heroicon-m-check')
                     ->requiresConfirmation()
-                    ->modalDescription(fn (User $record): string => 
-                        $record->statususer === 'active' 
-                            ? 'Apakah anda yakin untuk memblokir user?' 
+                    ->modalDescription(
+                        fn(User $record): string =>
+                        $record->statususer === 'active'
+                            ? 'Apakah anda yakin untuk memblokir user?'
                             : 'Apakah anda yakin untuk mengaktifkan user?'
                     )
                     ->action(function (User $record): void {
@@ -100,7 +102,7 @@ class UserResource extends Resource
     }
 
     public static function canCreate(): bool
-   {
-      return false;
-   }
+    {
+        return false;
+    }
 }

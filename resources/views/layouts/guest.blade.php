@@ -15,17 +15,23 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="text-gray-900 antialiased">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-
-        <x-nav-link :href="route('home')">
-            <img src="{{ asset('storage/img/campigo.png') }}" alt="Campigo Logo" class="h-12 w-auto" />
-        </x-nav-link>
+<body class="text-gray-900">
+    <div class="min-h-screen flex bg-gradient-to-r from-teal-100 via-green-100 to-blue-100 relative justify-end">
+        <!-- Background image container -->
+        <div class="absolute inset-0 z-0" style="background-image: url('{{ asset('storage/img/bg2.jpg') }}'); background-size: cover; background-position: center; opacity: 0.5;"></div>
         
-        <x-nav-link :href="route('home')">
-            <h1 class="text-3xl font-extrabold text-teal-700">Campigo</h1>
-        </x-nav-link>
-        <div class="w-full sm:max-w-md mt-3 mb-3 px-3 py-2 bg-gradient-to-r from-teal-100 via-green-100 to-blue-100 shadow-md overflow-hidden sm:rounded-2xl">
+        <!-- Logo moved to top-left -->
+        <div class="z-20 absolute top-5 left-5 flex items-center">
+            <x-nav-link :href="route('home')">
+                <img src="{{ asset('storage/img/campigo.png') }}" alt="Campigo Logo" class="h-12 w-auto" />
+            </x-nav-link>
+            <x-nav-link :href="route('home')">
+                <h1 class="text-3xl font-extrabold text-teal-700">Campigo</h1>
+            </x-nav-link>
+        </div>
+
+        <!-- Main content container -->
+        <div class="w-[400px] min-h-screen shadow-md overflow-hidden z-10 rounded-l-xl" style="opacity: 0.75;">
             {{ $slot }}
         </div>
     </div>

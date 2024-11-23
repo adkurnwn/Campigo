@@ -3,8 +3,11 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
             <!-- Column 1 -->
             <div>
-                <router-link to="/" class="text-2xl font-bold text-gray-900 mb-6 block">
-                    Campigo
+                <router-link to="/" class="flex items-center gap-2">
+                    <img src="/storage/app/public/img/campigo.png" alt="Campigo Logo" class="h-8 w-auto" />
+                    <div class="text-2xl font-bold text-teal-600">
+                        Campigo
+                    </div>
                 </router-link>
                 <p class="text-gray-500">
                     Find your perfect camping experience with us

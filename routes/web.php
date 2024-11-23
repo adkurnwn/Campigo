@@ -18,7 +18,8 @@ Route::get('/forgot-password', function () {
 require __DIR__.'/api.php';
 require __DIR__.'/auth.php';
 
-// Ensure this catch-all route is at the end of the file
+
+// Move catch-all route to the end after all requires
 Route::get('{any}', function () {
     return view('app');
 })->where('any', '.*');

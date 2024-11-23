@@ -1,27 +1,45 @@
 <x-guest-layout>
-    <div class="bg-gradient-to-b from-gray-100 to-gray-200 p-4 rounded-lg shadow-lg w-full max-w-4xl mx-auto mt-5 mb-5">
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+    <div class="bg-white h-full flex flex-col">
+        <!-- Back button -->
+        <div class="p-4">
+            <a href="{{ route('login') }}" class="text-teal-600 hover:text-teal-700 flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>
+                <span>Kembali</span>
+            </a>
         </div>
+        <div class="flex-1 flex items-center">
+            <div class="p-6 rounded-lg w-full">
+                <h1 class="text-center text-2xl font-bold mb-12 text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-green-600 to-blue-600">
+                    {{ __('Forgot Password') }}
+                </h1>
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+                <div class="mb-4 text-sm text-gray-600">
+                    {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+                </div>
 
-        <form method="POST" action="{{ route('password.email') }}">
-            @csrf
+                <!-- Session Status -->
+                <x-auth-session-status class="mb-4" :status="session('status')" />
 
-            <!-- Email Address -->
-            <div>
-                <x-input-label for="email" :value="__('Email')" />
-                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                <form method="POST" action="{{ route('password.email') }}" class="space-y-2">
+                    @csrf
+
+                    <!-- Email Address -->
+                    <div>
+                        <label for="email" class="block mb-1 font-semibold text-gray-700">{{ __('Email') }}</label>
+                        <input id="email" type="email" name="email" :value="old('email')" required autofocus
+                            class="w-full p-2 rounded-lg border border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                        @error('email')
+                            <p class="mt-1 text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex items-center justify-end mt-6">
+                        <button type="submit" class="px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white font-bold rounded-full shadow-lg hover:bg-gradient-to-l hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
+                            {{ __('Email Password Reset Link') }}
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <button class="px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white font-bold rounded-full shadow-lg hover:bg-gradient-to-l hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
-                    {{ __('Email Password Reset Link') }}
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </x-guest-layout>
