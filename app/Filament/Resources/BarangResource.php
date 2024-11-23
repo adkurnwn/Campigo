@@ -25,8 +25,10 @@ use App\Filament\Resources\BarangResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use App\Filament\Resources\BarangResource\RelationManagers;
+use Faker\Provider\ar_EG\Text;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Tables\Filters\SelectFilter;
 
 class BarangResource extends Resource
 {
@@ -42,9 +44,12 @@ class BarangResource extends Resource
                         TextInput::make('kode')->required()->unique(ignorable: fn($record) => $record),
                         TextInput::make('nama')->required(),
                         TextInput::make('merk'),
-                        TextInput::make('harga')->numeric()->prefix('Rp ')->required(),
+                        //TextInput::make('stok')->numeric(),
+                        TextInput::make('kapasitas')->numeric(),
+                        //TextInput::make('berat')->numeric(),
+                        //TextInput::make('harga')->numeric()->prefix('Rp ')->required(),
                         //TextInput::make('berat')->numeric()->suffix('gram')->required(),
-                        //TextInput::make('stok')->numeric()->required(),
+                        TextInput::make('stok')->numeric()->required(),
                         Select::make('kategori')
                             ->options([
                                 'Tenda' => 'Tenda',
@@ -55,10 +60,10 @@ class BarangResource extends Resource
                                 'Wears' => 'Wears',
                                 'Lainnya' => 'Lainnya',
                             ])->required(),
-                        SpatieMediaLibraryFileUpload::make('image') // The name of the field in the database
-                            ->label('Upload Image'),
-                        RichEditor::make('deskripsi'),
-                        
+                        //SpatieMediaLibraryFileUpload::make('image') // The name of the field in the database
+                            //->label('Upload Gambar'),
+                        //RichEditor::make('deskripsi'),
+
                     ])
                     ->columns(3),
             ]);
@@ -80,6 +85,8 @@ class BarangResource extends Resource
                     ->prefix('Rp ')
                     ->sortable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('berat')->sortable()->label('Berat (g)'),
+                TextColumn::make('stok')->sortable(),
                 SpatieMediaLibraryImageColumn::make('image')
                     ->label('Gambar'),
                 //TextColumn::make('updated_at')->sortable()->label('Terakhir Update'),
@@ -87,10 +94,20 @@ class BarangResource extends Resource
             ])
             ->defaultSort('updated_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('kategori')
+                    ->options([
+                        'Tenda' => 'Tenda',
+                        'Bag' => 'Bag',
+                        'Perlengkapan Tidur' => 'Perlengkapan Tidur',
+                        'Lampu' => 'Lampu',
+                        'Alat Masak dan Makan' => 'Alat Masak dan Makan',
+                        'Wears' => 'Wears',
+                        'Lainnya' => 'Lainnya',
+                    ])
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->modalWidth('max-w-4xl'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
@@ -99,7 +116,6 @@ class BarangResource extends Resource
                 ]),
             ]);
     }
-
 
     public static function getRelations(): array
     {
@@ -113,7 +129,6 @@ class BarangResource extends Resource
         return [
             'index' => Pages\ListBarangs::route('/'),
             'create' => Pages\CreateBarang::route('/create'),
-            'edit' => Pages\EditBarang::route('/{record}/edit'),
         ];
     }
 }

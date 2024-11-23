@@ -128,6 +128,7 @@
 <script setup>
 import { ref } from 'vue';
 import ModalComponent from './ModalComponent.vue';
+import axios from 'axios';
 
 const isOpen = ref(false);
 const jenisOptions = ['gunung', 'pantai', 'hutan', 'perkemahan'];
@@ -147,8 +148,17 @@ const decrementDurasi = () => {
     if (formData.value.durasi > 1) formData.value.durasi--;
 };
 
-const handleSubmit = () => {
-    console.log('Form submitted:', formData.value);
-    // Add your form submission logic here
+const handleSubmit = async () => {
+    try {
+        const response = await axios.post('/api/recommendations', {
+            jumlahOrang: formData.value.jumlahOrang,
+            jenisCamping: formData.value.jenisCamping,
+            durasi: formData.value.durasi
+        });
+        console.log('Recommendations:', response.data);
+        // Handle the recommendations display here
+    } catch (error) {
+        console.error('Error:', error);
+    }
 };
 </script>

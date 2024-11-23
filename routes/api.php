@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JaminanKtpController;
 use App\Http\Controllers\PaymentProofController;
 use App\Http\Controllers\TransaksiSewaController;
+use App\Http\Controllers\RecommendationController;
 
 // Add this route to handle requests for Barang data
 Route::get('/api/barang', [BarangController::class, 'index']);
@@ -37,4 +38,7 @@ Route::get('/api/user/', [ProfileController::class, 'getInfo']);
 Route::patch('/api/profile/update', [ProfileController::class, 'update']);
 Route::put('/api/profile/password', [ProfileController::class, 'password']);
 Route::delete('/api/profile/delete', [ProfileController::class, 'destroy']);
+
+// Add new route for recommendations
+Route::post('/api/recommendations', [RecommendationController::class, 'getRecommendations']);
 

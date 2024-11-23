@@ -21,7 +21,9 @@ class Barang extends Model implements HasMedia
         'berat',
         'deskripsi',
         'image',
+        'kapasitas',
         'kategori',
+        'count_disewa',
         'updated_at',
     ];
 
