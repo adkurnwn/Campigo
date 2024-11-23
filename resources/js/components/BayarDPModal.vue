@@ -89,58 +89,62 @@ const submitOrder = async () => {
 </script>
 
 <template>
-    <div class="p-6">
-        <!-- Remove toast notification from here -->
-
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-playfair font-bold text-gray-900 tracking-tight">Pembayaran DP</h2>
-            <button @click="$emit('back')" 
-                class="text-teal-600 hover:text-teal-700 font-medium transform transition-all duration-300 hover:scale-105">
-                Kembali ke Jadwal
-            </button>
+    <div class="flex flex-col h-[85vh]">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-playfair font-bold text-gray-900 tracking-tight">Pembayaran DP</h2>
+                <button @click="$emit('back')" 
+                    class="text-teal-600 hover:text-teal-700 font-medium transform transition-all duration-300 hover:scale-105">
+                    Kembali ke Jadwal
+                </button>
+            </div>
         </div>
 
-        <div class="space-y-6">
-            <!-- Total DP Section -->
-            <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg p-6">
-                <h3 class="text-lg font-playfair font-bold text-gray-900 mb-2">Total DP yang harus dibayar (50%)</h3>
-                <p class="text-2xl font-semibold text-teal-600">
-                    {{ formatCurrency(dpAmount) }}
-                </p>
-            </div>
-
-            <!-- Payment Method Section -->
-            <div class="space-y-3">
-                <h3 class="text-lg font-playfair font-bold text-gray-900">Pilih Metode Pembayaran</h3>
-                <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-0.5 rounded-lg">
-                    <select v-model="selectedPaymentMethod"
-                        class="w-full bg-white rounded-lg p-3 border-2 border-transparent focus:border-teal-600 focus:outline-none transition-all duration-300">
-                        <option value="" disabled>Pilih metode pembayaran</option>
-                        <option value="tunai">Tunai</option>
-                        <option value="transferbank">Transfer Bank</option>
-                        <option value="ewallet" disabled>E-Wallet (belum tersedia)</option>
-                        <option value="qris" disabled>QRIS (belum tersedia)</option>
-                    </select>
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="space-y-6">
+                <!-- Total DP Section -->
+                <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg p-6">
+                    <h3 class="text-lg font-playfair font-bold text-gray-900 mb-2">Total DP yang harus dibayar (50%)</h3>
+                    <p class="text-2xl font-semibold text-teal-600">
+                        {{ formatCurrency(dpAmount) }}
+                    </p>
                 </div>
-            </div>
 
-            <!-- Bank Transfer Information -->
-            <div v-if="selectedPaymentMethod === 'transferbank'" class="space-y-3 mt-4">
-                <div class="bg-white border border-teal-200 rounded-lg p-4">
-                    <h4 class="font-medium text-gray-900 mb-3">Informasi Pembayaran Transfer Bank</h4>
-                    <div class="space-y-2">
-                        <p class="text-gray-600">Bank: <span class="font-medium text-gray-900">BCA</span></p>
-                        <p class="text-gray-600">No. Rekening: <span class="font-medium text-gray-900">1234567890</span></p>
-                        <p class="text-gray-600">Atas Nama: <span class="font-medium text-gray-900">PT Campigo Indonesia</span></p>
+                <!-- Payment Method Section -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-playfair font-bold text-gray-900">Pilih Metode Pembayaran</h3>
+                    <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-0.5 rounded-lg">
+                        <select v-model="selectedPaymentMethod"
+                            class="w-full bg-white rounded-lg p-3 border-2 border-transparent focus:border-teal-600 focus:outline-none transition-all duration-300">
+                            <option value="" disabled>Pilih metode pembayaran</option>
+                            <option value="tunai">Tunai</option>
+                            <option value="transferbank">Transfer Bank</option>
+                            <option value="ewallet" disabled>E-Wallet (belum tersedia)</option>
+                            <option value="qris" disabled>QRIS (belum tersedia)</option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <div v-if="error" 
-                class="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-                {{ error }}
-            </div>
+                <!-- Bank Transfer Information -->
+                <div v-if="selectedPaymentMethod === 'transferbank'" class="space-y-3 mt-4">
+                    <div class="bg-white border border-teal-200 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-3">Informasi Pembayaran Transfer Bank</h4>
+                        <div class="space-y-2">
+                            <p class="text-gray-600">Bank: <span class="font-medium text-gray-900">BCA</span></p>
+                            <p class="text-gray-600">No. Rekening: <span class="font-medium text-gray-900">1234567890</span></p>
+                            <p class="text-gray-600">Atas Nama: <span class="font-medium text-gray-900">PT Campigo Indonesia</span></p>
+                        </div>
+                    </div>
+                </div>
 
+                <div v-if="error" 
+                    class="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                    {{ error }}
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-200">
             <button @click="submitOrder"
                 :disabled="!isPaymentValid || isLoading"
                 class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none">

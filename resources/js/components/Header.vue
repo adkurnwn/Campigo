@@ -56,13 +56,14 @@
         <!-- Desktop Profile/Book Now Button -->
         <div class="relative flex gap-2">
             <button @click="toggleCart"
-            class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white p-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105"
+            class="hidden lg:block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white p-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105 relative"
             title="Cart">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.6 8M17 13l1.6 8M9 21h6" />
             </svg>
+            <span v-if="cartCount > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{{ cartCount }}</span>
             </button>
 
             <div v-if="isAuthenticated" class="flex gap-2">
@@ -217,7 +218,8 @@ export default {
             mobileMenuOpen: false,
             isAuthenticated: false,
             isDropdownOpen: false,
-            showLogoutModal: false, // Add this line
+            showLogoutModal: false,
+            cartCount: 0, // Add this line
         }
     },
     setup() {
@@ -228,6 +230,7 @@ export default {
     },
     created() {
         this.checkAuthStatus();
+        this.updateCartCount(); // Add this line
     },
     methods: {
         toggleMobileMenu() {
@@ -267,8 +270,18 @@ export default {
                 this.isDropdownOpen = false;
             }
         },
+        async updateCartCount() {
+            try {
+                const response = await fetch('/api/cart/count');
+                const data = await response.json();
+                this.cartCount = data.count;
+            } catch (error) {
+                console.error('Error fetching cart count:', error);
+            }
+        },
         toggleCart() {
             this.cartModalRef.openModal();
+            this.updateCartCount(); // Add this line
         },
     },
     mounted() {

@@ -21,6 +21,8 @@ Route::post('/api/cart/add/{id}', [BarangController::class, 'addToCart']);
 Route::get('/api/cart', [BarangController::class, 'viewCart']);
 Route::delete('/api/cart/remove/{id}', [BarangController::class, 'removeFromCart']);
 Route::put('/api/cart/update/{id}', [BarangController::class, 'updateCart']);
+Route::post('/api/cart/add-multiple', [BarangController::class, 'addMultipleToCart']);
+Route::get('/api/cart/count', [BarangController::class, 'getCartCount']);
 
 Route::post('/api/pesan', [TransaksiSewaController::class, 'store'])->name('pesan.store');
 

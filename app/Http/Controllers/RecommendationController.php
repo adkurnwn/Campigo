@@ -28,6 +28,27 @@ class RecommendationController extends Controller
         // Group tents by capacity and collect all models for each capacity
         $availableTents = $query->get()->groupBy('kapasitas');
         
+        // For single person, find the smallest available capacity
+        if ($remainingPeople === 1) {
+            $smallestCapacity = $availableTents->sortKeys()->first();
+            if ($smallestCapacity) {
+                $tent = $smallestCapacity->first();
+                $recommendations[] = [
+                    'id' => $tent->id,
+                    'nama' => $tent->nama,
+                    'kapasitas' => $tent->kapasitas,
+                    'quantity' => 1,
+                    'total_capacity' => $tent->kapasitas
+                ];
+                return response()->json([
+                    'recommendations' => $recommendations,
+                    'totalPeople' => $request->jumlahOrang,
+                    'accommodated' => $request->jumlahOrang,
+                    'remainingPeople' => 0
+                ]);
+            }
+        }
+
         // Sort by capacity in descending order
         $availableTents = $availableTents->sortKeysDesc();
 
@@ -89,12 +110,175 @@ class RecommendationController extends Controller
                 }
             }
         }
+
+        // Calculate total tent quantity from recommendations
+        $totalTentQty = array_sum(array_column($recommendations, 'quantity'));
+
+        // Add cooking equipment recommendations with single random item per category
+        $cookingEquipment = [];
+
+        // Get one random kompor
+        $kompor = Barang::where('kategori', 'Alat Masak dan Makan')
+            ->where('nama', 'like', '%Kompor%')
+            ->where('stok', '>', 0)
+            ->inRandomOrder()
+            ->first();
+        if ($kompor) {
+            $cookingEquipment[] = [
+                'id' => $kompor->id,
+                'nama' => $kompor->nama,
+                'kapasitas' => null,
+                'quantity' => $totalTentQty,
+                'total_capacity' => null
+            ];
+        }
+
+        // Get one random gas
+        $gas = Barang::where('kategori', 'Alat Masak dan Makan')
+            ->where('nama', 'like', '%Gas%')
+            ->where('stok', '>', 0)
+            ->inRandomOrder()
+            ->first();
+        if ($gas) {
+            $cookingEquipment[] = [
+                'id' => $gas->id,
+                'nama' => $gas->nama,
+                'kapasitas' => null,
+                'quantity' => $totalTentQty,
+                'total_capacity' => null
+            ];
+        }
+
+        // Get one random gelas
+        $gelas = Barang::where('kategori', 'Alat Masak dan Makan')
+            ->where('nama', 'like', '%Gelas%')
+            ->where('stok', '>', 0)
+            ->inRandomOrder()
+            ->first();
+        if ($gelas) {
+            $cookingEquipment[] = [
+                'id' => $gelas->id,
+                'nama' => $gelas->nama,
+                'kapasitas' => null,
+                'quantity' => $request->jumlahOrang,
+                'total_capacity' => null
+            ];
+        }
+
+        // Get one random nesting
+        $nesting = Barang::where('kategori', 'Alat Masak dan Makan')
+            ->where('nama', 'like', '%Nesting%')
+            ->where('stok', '>', 0)
+            ->inRandomOrder()
+            ->first();
+        if ($nesting) {
+            $cookingEquipment[] = [
+                'id' => $nesting->id,
+                'nama' => $nesting->nama,
+                'kapasitas' => null, 
+                'quantity' => $totalTentQty,
+                'total_capacity' => null
+            ];
+        }
+
+        $recommendations = array_merge($recommendations, $cookingEquipment);
+
+        // Add bag recommendations for mountain/forest camping
+        if (in_array(strtolower($request->jenisCamping), ['gunung', 'hutan'])) {
+            $bagQuery = Barang::where('kategori', 'Bag')
+                ->where('stok', '>', 0);
+
+            // Select bag capacity based on duration
+            if ($request->durasi == 1) {
+                $bagQuery->where('nama', 'like', '%25 Lt%');
+            } elseif ($request->durasi == 2 || $request->durasi == 3) {
+                $bagQuery->where('nama', 'like', '%45 Lt%');
+            } else {
+                $bagQuery->where(function($query) {
+                    $query->where('nama', 'like', '%55 Lt%')
+                        ->orWhere('nama', 'like', '%60 Lt%')
+                        ->orWhere('nama', 'like', '%80 Lt%');
+                });
+            }
+
+            // Get random bag
+            $bag = $bagQuery->inRandomOrder()->first();
+            if ($bag) {
+                $recommendations[] = [
+                    'id' => $bag->id,
+                    'nama' => $bag->nama,
+                    'kapasitas' => null,
+                    'quantity' => intval(ceil($request->jumlahOrang / 2)),
+                    'total_capacity' => null
+                ];
+            }
+        }
+
+        // Add mountain-specific equipment if jenisCamping is "gunung"
+        if (strtolower($request->jenisCamping) === 'gunung') {
+            $hikingQuery = Barang::where('stok', '>', 0)
+                ->where(function($query) {
+                    $query->where('nama', 'like', '%tracking%')
+                        ->orWhere('nama', 'like', '%hiking%')
+                        ->orWhere('nama', 'like', '%mendaki%')
+                        ->orWhere('nama', 'like', '%gunung%');
+                })
+                ->whereNotIn('kategori', ['Tenda', 'Bag']); // Exclude tents and bags as they're handled separately
+
+            $hikingEquipment = $hikingQuery->inRandomOrder()->take(3)->get(); // Get 3 random items
+
+            foreach ($hikingEquipment as $item) {
+                $recommendations[] = [
+                    'id' => $item->id,
+                    'nama' => $item->nama,
+                    'kapasitas' => null,
+                    'quantity' => 1,
+                    'total_capacity' => null
+                ];
+            }
+        }
+
+        // Modify the response structure to include full item details
+        $recommendationsWithDetails = [];
         
+        foreach ($recommendations as $rec) {
+            $barang = Barang::find($rec['id']);
+            $recommendationsWithDetails[] = [
+                'id' => $barang->id,
+                'nama' => $barang->nama,
+                'merk' => $barang->merk,
+                'harga' => $barang->harga,
+                'image' => $barang->image,
+                'stok' => $barang->stok,
+                'kategori' => $barang->kategori,
+                'kapasitas' => $barang->kapasitas,
+                'quantity' => $rec['quantity'],
+                'total_capacity' => $rec['total_capacity'] ?? null,
+            ];
+        }
+
+        $totalHarga = collect($recommendationsWithDetails)->sum(function ($item) {
+            return $item['harga'] * $item['quantity'];
+        });
+
         return response()->json([
-            'recommendations' => $recommendations,
-            'totalPeople' => $request->jumlahOrang,
-            'accommodated' => $request->jumlahOrang - $remainingPeople,
-            'remainingPeople' => max(0, $remainingPeople)
+            'recommendations' => $recommendationsWithDetails,
+            'summary' => [
+                'totalItems' => count($recommendationsWithDetails),
+                'totalQuantity' => collect($recommendationsWithDetails)->sum('quantity'),
+                'totalHarga' => $totalHarga,
+                'totalPerDay' => $totalHarga,
+                'totalForDuration' => $totalHarga * $request->durasi,
+            ],
+            'request' => [
+                'jumlahOrang' => $request->jumlahOrang,
+                'jenisCamping' => $request->jenisCamping,
+                'durasi' => $request->durasi,
+            ],
+            'status' => [
+                'accommodated' => $request->jumlahOrang - $remainingPeople,
+                'remainingPeople' => max(0, $remainingPeople),
+            ]
         ]);
     }
 

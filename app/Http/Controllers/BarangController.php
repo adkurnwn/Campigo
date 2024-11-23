@@ -62,6 +62,41 @@ class BarangController extends Controller
         ]);
     }
 
+    public function addMultipleToCart(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:barangs,id',
+            'items.*.quantity' => 'required|integer|min:1'
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        foreach ($request->items as $item) {
+            $barang = Barang::find($item['id']);
+            
+            if (isset($cart[$barang->id])) {
+                $cart[$barang->id]['quantity'] += $item['quantity'];
+            } else {
+                $cart[$barang->id] = [
+                    'barang_id' => $barang->id,
+                    'nama' => $barang->nama,
+                    'merk' => $barang->merk,
+                    'quantity' => $item['quantity'],
+                    'harga' => $barang->harga,
+                    'image' => $barang->image,
+                ];
+            }
+        }
+
+        session()->put('cart', $cart);
+
+        return response()->json([
+            'message' => 'Semua item berhasil ditambahkan ke keranjang!',
+            'cart' => $cart
+        ]);
+    }
+
     // Menampilkan isi keranjang
     public function viewCart()
     {
@@ -117,6 +152,16 @@ class BarangController extends Controller
                 'message' => 'Product not found'
             ], 404);
         }
+    }
+
+    public function getCartCount()
+    {
+        $cart = session()->get('cart', []);
+        $totalQuantity = array_reduce($cart, function($sum, $item) {
+            return $sum + $item['quantity'];
+        }, 0);
+        
+        return response()->json(['count' => $totalQuantity]);
     }
 
 }
