@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
+use App\Models\TemporaryUser;
+use App\Notifications\VerifyEmailOtp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -31,20 +29,28 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
         ]);
 
-        $user = User::create([
+        // Delete any existing temporary registration for this email
+        TemporaryUser::where('email', $request->email)->delete();
+
+        // Generate OTP
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+
+        // Store temporary user data
+        $tempUser = TemporaryUser::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'otp' => $otp,
+            'otp_expires_at' => now()->addMinutes(10)
         ]);
 
-        event(new Registered($user));
+        // Send OTP notification
+        Notification::route('mail', $request->email)
+            ->notify(new VerifyEmailOtp($otp));
 
-        Auth::login($user);
-
-        return redirect(route('home', absolute: false));
+        return redirect()->route('verify.otp.form', ['email' => $request->email])
+            ->with('status', 'Kode OTP telah dikirim ke email Anda.');
     }
 }

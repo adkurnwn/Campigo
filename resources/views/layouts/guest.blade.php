@@ -31,7 +31,7 @@
         </div>
 
         <!-- Main content container -->
-        <div class="w-[400px] min-h-screen shadow-md overflow-hidden z-10 rounded-l-xl" style="opacity: 0.75;">
+        <div class="w-[450px] min-h-screen shadow-md overflow-hidden z-10 rounded-l-xl" style="opacity: 0.75;">
             {{ $slot }}
         </div>
     </div>

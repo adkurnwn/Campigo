@@ -10,17 +10,17 @@
         <div class="flex-1 flex items-center">
             <div class="p-6 rounded-lg w-full">
                 <h1 class="text-center text-2xl font-bold mb-12 text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-green-600 to-blue-600">
-                    {{ __('Forgot Password') }}
+                    {{ __('LUPA PASSWORD') }}
                 </h1>
 
                 <div class="mb-4 text-sm text-gray-600">
-                    {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+                    {{ __('Lupa password anda? Tidak masalah. Cukup masukkan alamat email Anda dan kami akan mengirimkan email berisi link reset password yang memungkinkan Anda membuat password baru.') }}
                 </div>
 
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                <form method="POST" action="{{ route('password.email') }}" class="space-y-2">
+                <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
                     @csrf
 
                     <!-- Email Address -->
@@ -35,7 +35,7 @@
 
                     <div class="flex items-center justify-end mt-6">
                         <button type="submit" class="px-4 py-2 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white font-bold rounded-full shadow-lg hover:bg-gradient-to-l hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
-                            {{ __('Email Password Reset Link') }}
+                            {{ __('Email Link Reset Password') }}
                         </button>
                     </div>
                 </form>
