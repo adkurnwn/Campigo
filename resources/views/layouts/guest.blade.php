@@ -18,7 +18,7 @@
 <body class="text-gray-900">
     <div class="min-h-screen flex bg-gradient-to-r from-teal-100 via-green-100 to-blue-100 relative justify-end">
         <!-- Background image container -->
-        <div class="absolute inset-0 z-0" style="background-image: url('{{ asset('storage/img/bg2.jpg') }}'); background-size: cover; background-position: center; opacity: 0.5;"></div>
+        <div class="absolute inset-0 z-0" style="background-image: url('{{ asset('storage/img/bg3.jpg') }}'); background-size: cover; background-position: center; opacity: 0.5;"></div>
         
         <!-- Logo moved to top-left -->
         <div class="z-20 absolute top-5 left-5 flex items-center">

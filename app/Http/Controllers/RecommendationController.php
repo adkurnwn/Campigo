@@ -232,7 +232,7 @@ class RecommendationController extends Controller
                     'id' => $item->id,
                     'nama' => $item->nama,
                     'kapasitas' => null,
-                    'quantity' => 1,
+                    'quantity' => $request->jumlahOrang,
                     'total_capacity' => null
                 ];
             }
