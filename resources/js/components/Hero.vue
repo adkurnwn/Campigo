@@ -1,5 +1,5 @@
 <template>
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-">
+  <section class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex gap-8 items-center max-md:flex-col">
       <!-- Left Content -->
       <div class="w-full lg:w-1/3">

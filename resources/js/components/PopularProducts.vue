@@ -1,6 +1,6 @@
 <template>
-    <section class="py-16">
-        <div class="h3">
+    <section class="py-10 mx-8">
+        <div class="h1">
             <h3 class="text-3xl font-playfair font-bold text-gray-900 mb-6 text-center">
                 Produk Terpopuler
             </h3>
