@@ -28,33 +28,38 @@
                             Rp {{ number_format($record->total_harga * 0.5, 0, ',', '.') }}
                         </p>
                     </div>
+                    @if($showPelunasan)
+                    <div>
+                        <p class="text-sm text-gray-600">Pelunasan (50%)</p>
+                        <p class="text-lg font-medium text-blue-600">
+                            Rp {{ number_format($record->total_harga * 0.5, 0, ',', '.') }}
+                        </p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
-            <!-- Payment Proof Image -->
-            <div class="rounded-lg overflow-hidden border border-gray-200">
-                <img 
-                    src="{{ asset('storage/' . $record->paymentProof->image_path) }}" 
-                    alt="Payment Proof"
-                    class="w-full h-auto"
-                >
+
+            <!-- New Payment Proof Section -->
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-medium">Bukti DP</h3>
+                    <img src="{{ Storage::url($record->paymentProof->image_path) }}" 
+                         alt="Payment Proof" 
+                         class="mt-2 rounded-lg max-h-96">
+                </div>
+
+                @if($showPelunasan && $record->paymentProof->image_path_lunas)
+                    <div class="mt-6">
+                        <h3 class="text-lg font-medium">Bukti Pelunasan</h3>
+                        <img src="{{ Storage::url($record->paymentProof->image_path_lunas) }}" 
+                             alt="Pelunasan Proof" 
+                             class="mt-2 rounded-lg max-h-96">
+                    </div>
+                @endif
             </div>
 
-            <!-- Action Buttons -->
-            @if($record->status === 'pending')
-            <div class="flex gap-3">
-                <button
-                    x-on:click="$wire.updateStatus({{ $record->id }}, 'pembayaran terkonfirmasi')"
-                    class="flex-1 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors">
-                    Terima
-                </button>
-                <button
-                    x-on:click="$wire.updateStatus({{ $record->id }}, 'dibatalkan')"
-                    class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
-                    Tolak
-                </button>
-            </div>
-            @endif
+            
         </div>
     @else
         <div class="text-gray-500">No payment proof available</div>

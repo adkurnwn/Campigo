@@ -23,7 +23,7 @@
             <div class="pt-2 text-teal-600">Memuat...</div>
         </div>
         
-        <div v-else-if="filteredTransactions.length === 0" class="text-center p-8 bg-gray-50 rounded-lg">
+        <div v-else-if="filteredTransactions.length === 0" class="text-center p-16 bg-transparent rounded-lg">
             <p class="text-gray-600">Tidak ada transaksi yang sesuai filter.</p>
         </div>
         
@@ -38,12 +38,10 @@
                             class="px-3 py-1 text-sm font-medium rounded-full"
                             :class="{
                                 'bg-gray-100 text-gray-800': transaction.status === 'belum bayar',
-                                'bg-yellow-100 text-yellow-800': transaction.status === 'pending',
-                                'bg-green-100 text-green-800': transaction.status === 'pembayaran terkonfirmasi',
-                                'bg-teal-100 text-teal-800': transaction.status === 'berlangsung',
+                                'bg-yellow-100 text-yellow-800': transaction.status === 'pending' || transaction.status === 'diperiksa' || transaction.status === 'pelunasan diperiksa',
+                                'bg-teal-100 text-teal-800': transaction.status === 'pembayaran terkonfirmasi' || transaction.status === 'berlangsung',
                                 'bg-blue-100 text-blue-800': transaction.status === 'selesai',
                                 'bg-red-100 text-red-800': transaction.status === 'dibatalkan',
-                                
                                 
                             }"
                         >
@@ -72,13 +70,31 @@
                         </div>
 
                         <div class="space-y-2">
-                            <div class="inline-block bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
-                                <p class="text-xl font-semibold text-teal-600">
-                                    Rp {{ formatPrice(transaction.total_harga) }}
-                                </p>
-                                <p v-if="transaction.dp_amount" class="text-sm text-gray-600">
-                                    DP: Rp {{ formatPrice(transaction.dp_amount) }}
-                                </p>
+                            <!-- Price Container -->
+                            <div class="flex justify-end">
+                                <div class="inline-block bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
+                                    <p class="text-xl font-semibold text-teal-600 text-right">
+                                        Rp {{ formatPrice(transaction.total_harga) }}
+                                    </p>
+                                    <p v-if="transaction.dp_amount" class="text-sm text-gray-600 text-right">
+                                        DP: Rp {{ formatPrice(transaction.dp_amount) }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Countdown Timer Container -->
+                            <div class="flex justify-end">
+                                <div 
+                                    v-if="transaction.status === 'berlangsung' || transaction.status === 'diperiksa'"
+                                    class="inline-flex items-center bg-red-50 rounded-lg px-4 py-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-red-600">
+                                        {{ getRemainingTime(transaction.tgl_kembali) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -144,6 +160,16 @@
                         </div>
                     </div>
 
+                    <!-- Return Items Button - Moved here -->
+                    <div v-if="transaction.status === 'berlangsung'" class="border-t border-gray-200 pt-4">
+                        <button 
+                            @click="returnItems(transaction)"
+                            class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                        >
+                            Kembalikan
+                        </button>
+                    </div>
+
                     <!-- Payment Method -->
                     <div v-if="transaction.payment_method" class="text-sm text-gray-600 border-t border-gray-200 pt-4">
                         <span class="font-medium text-gray-900">Metode Pembayaran:</span>
@@ -154,7 +180,6 @@
                     <div v-if="transaction.status === 'belum bayar'" class="border-t border-gray-200 pt-4">
                         <button 
                             @click="openUploadModal(transaction)"
-                            class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
                         >
                             Upload Bukti Pembayaran
                         </button>
@@ -172,6 +197,16 @@
                             class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
                         >
                             Ambil Barang
+                        </button>
+                    </div>
+
+                    <!-- Pelunasan Button -->
+                    <div v-if="transaction.status === 'pelunasan'" class="border-t border-gray-200 pt-4">
+                        <button 
+                            @click="openPelunasanModal(transaction)"
+                            class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                        >
+                            Lunasi Pembayaran
                         </button>
                     </div>
                 </div>
@@ -201,6 +236,14 @@
             @close="closeWebcamModal"
             @captured="handleCapturedImage"
         />
+
+        <!-- Pelunasan Modal -->
+        <PelunasanModal
+            :show="showPelunasanModal"
+            :transaction="selectedTransaction"
+            @close="closePelunasanModal"
+            @success="fetchTransactions"
+        />
     </div>
 </template>
 
@@ -210,6 +253,7 @@ import ProductDetail from '../components/ProductDetail.vue';
 import ProductDetailModal from '../components/ProductDetailModal.vue';
 import PaymentProofModal from '../components/PaymentProofModal.vue';
 import WebcamModal from '../components/WebcamModal.vue';
+import PelunasanModal from '../components/PelunasanModal.vue';
 
 export default {
     name: 'Sewa',
@@ -217,7 +261,8 @@ export default {
         ProductDetail,
         ProductDetailModal,
         PaymentProofModal,
-        WebcamModal
+        WebcamModal,
+        PelunasanModal
     },
     data() {
         return {
@@ -239,7 +284,9 @@ export default {
             showUploadModal: false,
             selectedTransaction: null,
             showWebcamModal: false,
-            currentTransaction: null
+            currentTransaction: null,
+            countdownInterval: null,
+            showPelunasanModal: false,
         }
     },
     watch: {
@@ -257,6 +304,16 @@ export default {
     },
     created() {
         this.fetchTransactions();
+        // Start countdown timer
+        this.countdownInterval = setInterval(() => {
+            this.$forceUpdate(); // Force update to refresh countdown
+        }, 1000);
+    },
+    beforeDestroy() {
+        // Clear interval when component is destroyed
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+        }
     },
     methods: {
         async fetchTransactions() {
@@ -364,7 +421,42 @@ export default {
                     transaction.status === this.activeStatus
                 );
             }
-        }
+        },
+        getRemainingTime(endDate) {
+            const end = new Date(endDate);
+            end.setHours(22, 0, 0); // Set end time to 22:00
+            
+            const now = new Date();
+            const diff = end - now;
+
+            if (diff <= 0) {
+                return 'Waktu habis';
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            return `${days} Hari ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        },
+        async returnItems(transaction) {
+            try {
+                await this.updateStatus(transaction.id, 'diperiksa');
+                this.$toast.success('Barang sedang dalam proses pemeriksaan');
+            } catch (error) {
+                console.error('Error returning items:', error);
+                this.$toast.error('Gagal mengembalikan barang');
+            }
+        },
+        openPelunasanModal(transaction) {
+            this.selectedTransaction = transaction;
+            this.showPelunasanModal = true;
+        },
+        closePelunasanModal() {
+            this.showPelunasanModal = false;
+            this.selectedTransaction = null;
+        },
     }
 }
 </script>

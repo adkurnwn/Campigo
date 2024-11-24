@@ -19,6 +19,9 @@ class TransaksiSewa extends Model
         'tgl_kembali',
         'status',
         'updated_at',
+        'payment_method',
+        'metode_bayar_lunas',
+        'image_path_lunas', // Add this new field
     ];
 
     public function itemsOrders()

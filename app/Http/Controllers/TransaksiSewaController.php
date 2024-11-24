@@ -188,6 +188,16 @@ class TransaksiSewaController extends Controller
                 ], 403);
             }
 
+            $availableStatuses = [
+                'belum bayar',
+                'pending',
+                'pembayaran terkonfirmasi',
+                'berlangsung',
+                'diperiksa',    // Add this new status
+                'selesai',
+                'dibatalkan'
+            ];
+
             $transaction->update([
                 'status' => $request->status
             ]);

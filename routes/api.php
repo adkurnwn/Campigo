@@ -36,6 +36,8 @@ Route::post('/api/upload-ktp', [JaminanKtpController::class, 'store']);
 
 Route::put('/api/transaction/{id}/update-status', [TransaksiSewaController::class, 'updateStatus']);
 
+Route::post('/api/transaction/{id}/pelunasan', [PaymentProofController::class, 'storeLunas']);
+
 Route::get('/api/user/', [ProfileController::class, 'getInfo']);
 Route::patch('/api/profile/update', [ProfileController::class, 'update']);
 Route::put('/api/profile/password', [ProfileController::class, 'password']);

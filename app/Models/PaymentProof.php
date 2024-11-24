@@ -11,7 +11,8 @@ class PaymentProof extends Model
 
     protected $fillable = [
         'transaksi_sewa_id',
-        'image_path'
+        'image_path',
+        'image_path_lunas',
     ];
 
     public function transaksiSewa()

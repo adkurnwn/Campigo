@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransaksiSewaResource\Pages;
 use App\Filament\Resources\TransaksiSewaResource\RelationManagers;
 use App\Models\TransaksiSewa;
+use App\Models\ItemsOrder;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\ViewField;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 
 class TransaksiSewaResource extends Resource
 {
@@ -35,6 +37,7 @@ class TransaksiSewaResource extends Resource
                         'dibatalkan' => 'dibatalkan',
                         'berlangsung' => 'berlangsung',
                         'belum bayar' => 'belum bayar',
+                        'pelunasan diperiksa' => 'pelunasan diperiksa', // Add this new status
                     ]),
                 Forms\Components\Section::make('Bukti Pembayaran')
                     ->schema([
@@ -68,7 +71,7 @@ class TransaksiSewaResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('metode_bayar')
                     ->badge()
-                    ->label('Metode Pembayaran'),
+                    ->label('Metode Bayar'),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'danger' => 'dibatalkan',
@@ -80,6 +83,13 @@ class TransaksiSewaResource extends Resource
                     ]),
             ])
             ->defaultSort('updated_at', 'desc')  // Add this line
+            ->headerActions([
+                Tables\Actions\Action::make('refresh')
+                    ->label('Refresh')
+                    ->icon('heroicon-o-arrow-path')
+                    ->action(fn () => null)
+                    ->color('gray'),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
@@ -96,14 +106,19 @@ class TransaksiSewaResource extends Resource
                 Action::make('view_payment')
                     ->label('Bukti Pembayaran')
                     ->icon('heroicon-o-photo')
-                    ->modalHeading('Bukti Pembayaran')
+                    ->modalHeading(fn (TransaksiSewa $record) => 
+                        in_array($record->status, ['pelunasan diperiksa', 'selesai']) ? 'Bukti DP & Pelunasan' : 'Bukti Pembayaran'
+                    )
                     ->modalContent(fn (TransaksiSewa $record) => view(
                         'filament.resources.transaksi-sewa.payment-proof',
-                        ['record' => $record]
+                        [
+                            'record' => $record,
+                            'showPelunasan' => in_array($record->status, ['pelunasan diperiksa', 'selesai'])
+                        ]
                     ))
                     ->modalSubmitAction(false)
                     ->modalCancelAction(false)
-                    ->visible(fn (TransaksiSewa $record) => $record->paymentProof)
+                    ->visible(fn (TransaksiSewa $record) => $record->paymentProof || $record->image_path_lunas)
                     ->color('success'),
                     
                 Action::make('approve_payment')
@@ -134,6 +149,56 @@ class TransaksiSewaResource extends Resource
                     ->modalCancelAction(false)
                     ->visible(fn (TransaksiSewa $record) => $record->status === 'berlangsung' && $record->jaminanKtp)
                     ->color('info'),
+
+                Action::make('approve_pelunasan')
+                    ->label('Selesai')
+                    ->icon('heroicon-o-check')
+                    ->action(fn (TransaksiSewa $record) => $record->update(['status' => 'selesai']))
+                    ->visible(fn (TransaksiSewa $record) => $record->status === 'pelunasan diperiksa')
+                    ->requiresConfirmation()
+                    ->color('success'),
+                    
+                Action::make('reject_pelunasan')
+                    ->label('Tolak')
+                    ->icon('heroicon-o-x-mark')
+                    ->action(fn (TransaksiSewa $record) => $record->update(['status' => 'pelunasan']))
+                    ->visible(fn (TransaksiSewa $record) => $record->status === 'pelunasan diperiksa')
+                    ->requiresConfirmation()
+                    ->color('danger'),
+
+                Action::make('inspect')
+                    ->label('Periksa')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->form(function (TransaksiSewa $record) {
+                        $formFields = [];
+                        foreach ($record->itemsOrder as $item) {
+                            $formFields[] = Forms\Components\Select::make("data.{$item->id}.kondisi")
+                                ->label($item->barang->name . " ({$item->quantity} unit)")
+                                ->options([
+                                    'normal' => 'Normal',
+                                    'rusak ringan' => 'Rusak Ringan',
+                                    'rusak berat' => 'Rusak Berat',
+                                    'hilang' => 'Hilang',
+                                ])
+                                ->required();
+                        }
+                        return $formFields;
+                    })
+                    ->action(function (array $data, TransaksiSewa $record): void {
+                        foreach ($data as $itemId => $values) {
+                            if (isset($values['kondisi'])) {
+                                ItemsOrder::where('id', $itemId)
+                                    ->where('transaksi_sewa_id', $record->id)
+                                    ->update([
+                                        'kondisi' => $values['kondisi']
+                                    ]);
+                            }
+                        }
+                        $record->update(['status' => 'pelunasan']);
+                    })
+                    ->visible(fn (TransaksiSewa $record) => $record->status === 'diperiksa')
+                    ->modalWidth('md')
+                    ->color('warning'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

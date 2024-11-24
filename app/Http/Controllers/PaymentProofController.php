@@ -117,4 +117,62 @@ class PaymentProofController extends Controller
     {
         //
     }
+
+    public function storeLunas(Request $request, $id)
+    {
+        $request->validate([
+            'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'payment_method' => 'required|in:tunai,transferbank'
+        ]);
+
+        try {
+            // Get the transaction
+            $transaction = TransaksiSewa::findOrFail($id);
+
+            // Check if user owns this transaction
+            if ($transaction->user_id !== auth()->id()) {
+                return response()->json([
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            // Generate unique filename
+            $fileName = 'payment_proof_lunas_' . Str::random(10) . '_' . time() . '.' . $request->payment_proof->extension();
+            
+            // Store the file
+            $path = $request->file('payment_proof')->storeAs(
+                'payment-proofs',
+                $fileName,
+                'public'
+            );
+
+            // Update or create payment proof record
+            $paymentProof = PaymentProof::updateOrCreate(
+                ['transaksi_sewa_id' => $id],
+                ['image_path_lunas' => $path]
+            );
+
+            // Update transaction status
+            $transaction->update([
+                'status' => 'pelunasan diperiksa',
+                'metode_bayar_lunas' => $request->payment_method
+            ]);
+
+            return response()->json([
+                'message' => 'Bukti pelunasan berhasil diunggah',
+                'data' => $paymentProof
+            ], 201);
+
+        } catch (\Exception $e) {
+            // Delete uploaded file if it exists
+            if (isset($path) && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
+            return response()->json([
+                'message' => 'Gagal mengunggah bukti pelunasan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

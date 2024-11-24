@@ -16,7 +16,20 @@ class ItemsOrder extends Model
         'barang_id',
         'quantity',
         'price_per_day',
-        'subtotal'
+        'subtotal',
+        'kondisi',
+        'denda',
+    ];
+
+    protected $casts = [
+        'kondisi' => 'string'
+    ];
+
+    public const KONDISI_OPTIONS = [
+        'normal' => 'Normal',
+        'rusak ringan' => 'Rusak Ringan',
+        'rusak berat' => 'Rusak Berat',
+        'hilang' => 'Hilang'
     ];
 
     public function transaksiSewa()
