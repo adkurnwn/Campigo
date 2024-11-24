@@ -18,94 +18,97 @@ class RecommendationController extends Controller
         $remainingPeople = $request->jumlahOrang;
         $recommendations = [];
         
-        $query = Barang::where('kategori', 'Tenda')
-            ->where('stok', '>', 0);
-            
-        if ($request->jenisCamping !== 'perkemahan') {
-            $query->whereNotIn('kapasitas', [20, 30, 50]);
-        }
-        
-        // Group tents by capacity and collect all models for each capacity
-        $availableTents = $query->get()->groupBy('kapasitas');
-        
-        // For single person, find the smallest available capacity
-        if ($remainingPeople === 1) {
-            $smallestCapacity = $availableTents->sortKeys()->first();
-            if ($smallestCapacity) {
-                $tent = $smallestCapacity->first();
-                $recommendations[] = [
-                    'id' => $tent->id,
-                    'nama' => $tent->nama,
-                    'kapasitas' => $tent->kapasitas,
-                    'quantity' => 1,
-                    'total_capacity' => $tent->kapasitas
-                ];
-                return response()->json([
-                    'recommendations' => $recommendations,
-                    'totalPeople' => $request->jumlahOrang,
-                    'accommodated' => $request->jumlahOrang,
-                    'remainingPeople' => 0
-                ]);
-            }
-        }
-
-        // Sort by capacity in descending order
-        $availableTents = $availableTents->sortKeysDesc();
-
-        while ($remainingPeople > 0 && count($availableTents) > 0) {
-            $bestCombination = $this->findBestTentCombination($availableTents, $remainingPeople);
-            
-            if (empty($bestCombination)) {
-                // If no optimal combination found, use the largest available capacity
-                $largestCapacity = $availableTents->keys()->first();
-                $tentsWithCapacity = $availableTents[$largestCapacity];
+        // Only process tents if duration > 1
+        if ($request->durasi > 1) {
+            $query = Barang::where('kategori', 'Tenda')
+                ->where('stok', '>', 0);
                 
-                // Calculate how many tents we need of this capacity
-                $totalNeeded = ceil($remainingPeople / $largestCapacity);
-                $remainingNeeded = $totalNeeded;
-                $tendsToAdd = [];
-
-                // Try to fulfill the need using multiple tent models of same capacity
-                foreach ($tentsWithCapacity as $tent) {
-                    if ($remainingNeeded <= 0) break;
-                    
-                    $quantityFromThisTent = min($tent->stok, $remainingNeeded);
-                    $tendsToAdd[] = [
-                        'id' => $tent->id,
-                        'nama' => $tent->nama,
-                        'kapasitas' => $tent->kapasitas,
-                        'quantity' => $quantityFromThisTent,
-                        'total_capacity' => $tent->kapasitas * $quantityFromThisTent
-                    ];
-                    
-                    $remainingNeeded -= $quantityFromThisTent;
-                }
-
-                // Add all tents of this capacity to recommendations
-                $recommendations = array_merge($recommendations, $tendsToAdd);
-                $totalCapacityAdded = array_sum(array_column($tendsToAdd, 'total_capacity'));
-                $remainingPeople -= $totalCapacityAdded;
-
-                // Remove this capacity if all tents are fully utilized
-                $totalStockRemaining = $tentsWithCapacity->sum('stok') - array_sum(array_column($tendsToAdd, 'quantity'));
-                if ($totalStockRemaining <= 0) {
-                    $availableTents->forget($largestCapacity);
-                }
-            } else {
-                foreach ($bestCombination as $tentId => $quantity) {
-                    $tent = Barang::find($tentId);
+            if ($request->jenisCamping !== 'perkemahan') {
+                $query->whereNotIn('kapasitas', [20, 30, 50]);
+            }
+            
+            // Group tents by capacity and collect all models for each capacity
+            $availableTents = $query->get()->groupBy('kapasitas');
+            
+            // For single person, find the smallest available capacity
+            if ($remainingPeople === 1) {
+                $smallestCapacity = $availableTents->sortKeys()->first();
+                if ($smallestCapacity) {
+                    $tent = $smallestCapacity->first();
                     $recommendations[] = [
                         'id' => $tent->id,
                         'nama' => $tent->nama,
                         'kapasitas' => $tent->kapasitas,
-                        'quantity' => $quantity,
-                        'total_capacity' => $tent->kapasitas * $quantity
+                        'quantity' => 1,
+                        'total_capacity' => $tent->kapasitas
                     ];
-                    $remainingPeople -= ($tent->kapasitas * $quantity);
+                    return response()->json([
+                        'recommendations' => $recommendations,
+                        'totalPeople' => $request->jumlahOrang,
+                        'accommodated' => $request->jumlahOrang,
+                        'remainingPeople' => 0
+                    ]);
+                }
+            }
+
+            // Sort by capacity in descending order
+            $availableTents = $availableTents->sortKeysDesc();
+
+            while ($remainingPeople > 0 && count($availableTents) > 0) {
+                $bestCombination = $this->findBestTentCombination($availableTents, $remainingPeople);
+                
+                if (empty($bestCombination)) {
+                    // If no optimal combination found, use the largest available capacity
+                    $largestCapacity = $availableTents->keys()->first();
+                    $tentsWithCapacity = $availableTents[$largestCapacity];
                     
-                    // Update available tents
-                    if ($tent->stok <= $quantity) {
-                        $availableTents->forget($tent->kapasitas);
+                    // Calculate how many tents we need of this capacity
+                    $totalNeeded = ceil($remainingPeople / $largestCapacity);
+                    $remainingNeeded = $totalNeeded;
+                    $tendsToAdd = [];
+
+                    // Try to fulfill the need using multiple tent models of same capacity
+                    foreach ($tentsWithCapacity as $tent) {
+                        if ($remainingNeeded <= 0) break;
+                        
+                        $quantityFromThisTent = min($tent->stok, $remainingNeeded);
+                        $tendsToAdd[] = [
+                            'id' => $tent->id,
+                            'nama' => $tent->nama,
+                            'kapasitas' => $tent->kapasitas,
+                            'quantity' => $quantityFromThisTent,
+                            'total_capacity' => $tent->kapasitas * $quantityFromThisTent
+                        ];
+                        
+                        $remainingNeeded -= $quantityFromThisTent;
+                    }
+
+                    // Add all tents of this capacity to recommendations
+                    $recommendations = array_merge($recommendations, $tendsToAdd);
+                    $totalCapacityAdded = array_sum(array_column($tendsToAdd, 'total_capacity'));
+                    $remainingPeople -= $totalCapacityAdded;
+
+                    // Remove this capacity if all tents are fully utilized
+                    $totalStockRemaining = $tentsWithCapacity->sum('stok') - array_sum(array_column($tendsToAdd, 'quantity'));
+                    if ($totalStockRemaining <= 0) {
+                        $availableTents->forget($largestCapacity);
+                    }
+                } else {
+                    foreach ($bestCombination as $tentId => $quantity) {
+                        $tent = Barang::find($tentId);
+                        $recommendations[] = [
+                            'id' => $tent->id,
+                            'nama' => $tent->nama,
+                            'kapasitas' => $tent->kapasitas,
+                            'quantity' => $quantity,
+                            'total_capacity' => $tent->kapasitas * $quantity
+                        ];
+                        $remainingPeople -= ($tent->kapasitas * $quantity);
+                        
+                        // Update available tents
+                        if ($tent->stok <= $quantity) {
+                            $availableTents->forget($tent->kapasitas);
+                        }
                     }
                 }
             }
@@ -114,74 +117,76 @@ class RecommendationController extends Controller
         // Calculate total tent quantity from recommendations
         $totalTentQty = array_sum(array_column($recommendations, 'quantity'));
 
-        // Add cooking equipment recommendations with single random item per category
-        $cookingEquipment = [];
+        // Add cooking equipment only if duration > 1
+        if ($request->durasi > 1) {
+            $cookingEquipment = [];
 
-        // Get one random kompor
-        $kompor = Barang::where('kategori', 'Alat Masak dan Makan')
-            ->where('nama', 'like', '%Kompor%')
-            ->where('stok', '>', 0)
-            ->inRandomOrder()
-            ->first();
-        if ($kompor) {
-            $cookingEquipment[] = [
-                'id' => $kompor->id,
-                'nama' => $kompor->nama,
-                'kapasitas' => null,
-                'quantity' => $totalTentQty,
-                'total_capacity' => null
-            ];
+            // Get one random kompor
+            $kompor = Barang::where('kategori', 'Alat Masak dan Makan')
+                ->where('nama', 'like', '%Kompor%')
+                ->where('stok', '>', 0)
+                ->inRandomOrder()
+                ->first();
+            if ($kompor) {
+                $cookingEquipment[] = [
+                    'id' => $kompor->id,
+                    'nama' => $kompor->nama,
+                    'kapasitas' => null,
+                    'quantity' => $totalTentQty,
+                    'total_capacity' => null
+                ];
+            }
+
+            // Get one random gas
+            $gas = Barang::where('kategori', 'Alat Masak dan Makan')
+                ->where('nama', 'like', '%Gas%')
+                ->where('stok', '>', 0)
+                ->inRandomOrder()
+                ->first();
+            if ($gas) {
+                $cookingEquipment[] = [
+                    'id' => $gas->id,
+                    'nama' => $gas->nama,
+                    'kapasitas' => null,
+                    'quantity' => $totalTentQty,
+                    'total_capacity' => null
+                ];
+            }
+
+            // Get one random gelas
+            $gelas = Barang::where('kategori', 'Alat Masak dan Makan')
+                ->where('nama', 'like', '%Gelas%')
+                ->where('stok', '>', 0)
+                ->inRandomOrder()
+                ->first();
+            if ($gelas) {
+                $cookingEquipment[] = [
+                    'id' => $gelas->id,
+                    'nama' => $gelas->nama,
+                    'kapasitas' => null,
+                    'quantity' => $request->jumlahOrang,
+                    'total_capacity' => null
+                ];
+            }
+
+            // Get one random nesting
+            $nesting = Barang::where('kategori', 'Alat Masak dan Makan')
+                ->where('nama', 'like', '%Nesting%')
+                ->where('stok', '>', 0)
+                ->inRandomOrder()
+                ->first();
+            if ($nesting) {
+                $cookingEquipment[] = [
+                    'id' => $nesting->id,
+                    'nama' => $nesting->nama,
+                    'kapasitas' => null, 
+                    'quantity' => $totalTentQty,
+                    'total_capacity' => null
+                ];
+            }
+
+            $recommendations = array_merge($recommendations, $cookingEquipment);
         }
-
-        // Get one random gas
-        $gas = Barang::where('kategori', 'Alat Masak dan Makan')
-            ->where('nama', 'like', '%Gas%')
-            ->where('stok', '>', 0)
-            ->inRandomOrder()
-            ->first();
-        if ($gas) {
-            $cookingEquipment[] = [
-                'id' => $gas->id,
-                'nama' => $gas->nama,
-                'kapasitas' => null,
-                'quantity' => $totalTentQty,
-                'total_capacity' => null
-            ];
-        }
-
-        // Get one random gelas
-        $gelas = Barang::where('kategori', 'Alat Masak dan Makan')
-            ->where('nama', 'like', '%Gelas%')
-            ->where('stok', '>', 0)
-            ->inRandomOrder()
-            ->first();
-        if ($gelas) {
-            $cookingEquipment[] = [
-                'id' => $gelas->id,
-                'nama' => $gelas->nama,
-                'kapasitas' => null,
-                'quantity' => $request->jumlahOrang,
-                'total_capacity' => null
-            ];
-        }
-
-        // Get one random nesting
-        $nesting = Barang::where('kategori', 'Alat Masak dan Makan')
-            ->where('nama', 'like', '%Nesting%')
-            ->where('stok', '>', 0)
-            ->inRandomOrder()
-            ->first();
-        if ($nesting) {
-            $cookingEquipment[] = [
-                'id' => $nesting->id,
-                'nama' => $nesting->nama,
-                'kapasitas' => null, 
-                'quantity' => $totalTentQty,
-                'total_capacity' => null
-            ];
-        }
-
-        $recommendations = array_merge($recommendations, $cookingEquipment);
 
         // Add bag recommendations for mountain/forest camping
         if (in_array(strtolower($request->jenisCamping), ['gunung', 'hutan'])) {
@@ -216,6 +221,30 @@ class RecommendationController extends Controller
 
         // Add mountain-specific equipment if jenisCamping is "gunung"
         if (strtolower($request->jenisCamping) === 'gunung') {
+            // First get footwear based on duration
+            $footwearQuery = Barang::where('stok', '>', 0);
+            
+            if ($request->durasi < 2) {
+                $footwearQuery->where(function($query) {
+                    $query->where('nama', 'like', '%sandal%')
+                          ->orWhere('nama', 'like', '%sepatu%');
+                });
+            } else {
+                $footwearQuery->where('nama', 'like', '%sepatu%');
+            }
+            
+            $footwear = $footwearQuery->inRandomOrder()->first();
+            if ($footwear) {
+                $recommendations[] = [
+                    'id' => $footwear->id,
+                    'nama' => $footwear->nama,
+                    'kapasitas' => null,
+                    'quantity' => $request->jumlahOrang,
+                    'total_capacity' => null
+                ];
+            }
+
+            // Then get other hiking equipment excluding footwear
             $hikingQuery = Barang::where('stok', '>', 0)
                 ->where(function($query) {
                     $query->where('nama', 'like', '%tracking%')
@@ -223,9 +252,11 @@ class RecommendationController extends Controller
                         ->orWhere('nama', 'like', '%mendaki%')
                         ->orWhere('nama', 'like', '%gunung%');
                 })
-                ->whereNotIn('kategori', ['Tenda', 'Bag']); // Exclude tents and bags as they're handled separately
+                ->whereNotIn('kategori', ['Tenda', 'Bag'])
+                ->where('nama', 'not like', '%sandal%')
+                ->where('nama', 'not like', '%sepatu%');
 
-            $hikingEquipment = $hikingQuery->inRandomOrder()->take(3)->get(); // Get 3 random items
+            $hikingEquipment = $hikingQuery->inRandomOrder()->take(2)->get(); // Reduced to 2 items since footwear is separate
 
             foreach ($hikingEquipment as $item) {
                 $recommendations[] = [
@@ -233,6 +264,49 @@ class RecommendationController extends Controller
                     'nama' => $item->nama,
                     'kapasitas' => null,
                     'quantity' => $request->jumlahOrang,
+                    'total_capacity' => null
+                ];
+            }
+        }
+
+        // Add beach-specific furniture if jenisCamping is "pantai"
+        if (strtolower($request->jenisCamping) === 'pantai') {
+            // Get table based on number of people
+            $tableQuery = Barang::where('kategori', 'Lainnya')
+                ->where('stok', '>', 0);
+
+            if ($request->jumlahOrang > 3) {
+                $tableQuery->where('nama', 'like', '%Meja%')
+                          ->where('nama', 'like', '%Besar%');
+            } else {
+                $tableQuery->where('nama', 'like', '%Meja%')
+                    ->where('nama', 'not like', '%Besar%');
+            }
+
+            $table = $tableQuery->inRandomOrder()->first();
+            if ($table) {
+                $recommendations[] = [
+                    'id' => $table->id,
+                    'nama' => $table->nama,
+                    'kapasitas' => null,
+                    'quantity' => 1,
+                    'total_capacity' => null
+                ];
+            }
+
+            // Get chairs
+            $chair = Barang::where('kategori', 'Lainnya')
+                ->where('nama', 'like', '%Kursi%')
+                ->where('stok', '>', 0)
+                ->inRandomOrder()
+                ->first();
+
+            if ($chair) {
+                $recommendations[] = [
+                    'id' => $chair->id,
+                    'nama' => $chair->nama,
+                    'kapasitas' => null,
+                    'quantity' => intval(ceil($request->jumlahOrang / 2)),
                     'total_capacity' => null
                 ];
             }
