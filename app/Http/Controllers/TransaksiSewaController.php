@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Barang;
 use App\Models\ItemsOrder;
 use Illuminate\Http\Request;
 use App\Models\TransaksiSewa;
@@ -53,6 +54,17 @@ class TransaksiSewaController extends Controller
                 'dp_amount' => 'required|numeric'
             ]);
 
+            // Check stock availability for all items
+            foreach ($validated['cart_items'] as $item) {
+                $barang = Barang::findOrFail($item['barang_id']);
+                if ($barang->stok < $item['quantity']) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Stok tidak mencukupi untuk {$barang->nama}. Stok tersedia: {$barang->stok}"
+                    ], 422);
+                }
+            }
+
             // Create TransaksiSewa
             $transaksi = TransaksiSewa::create([
                 'user_id' => Auth::id(),
@@ -64,7 +76,7 @@ class TransaksiSewaController extends Controller
                 'status' => 'belum bayar'
             ]);
 
-            // Create ItemsOrder for each item
+            // Create ItemsOrder for each item and decrease stock
             foreach ($validated['cart_items'] as $item) {
                 ItemsOrder::create([
                     'transaksi_sewa_id' => $transaksi->id,
@@ -73,6 +85,10 @@ class TransaksiSewaController extends Controller
                     'price_per_day' => $item['price_per_day'],
                     'subtotal' => $item['price_per_day'] * $item['quantity']
                 ]);
+
+                // Decrease stock
+                $barang = Barang::findOrFail($item['barang_id']);
+                $barang->decrement('stok', $item['quantity']);
             }
 
             // Clear cart

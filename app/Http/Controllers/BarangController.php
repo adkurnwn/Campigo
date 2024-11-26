@@ -144,7 +144,12 @@ class BarangController extends Controller
             $barang = Barang::findOrFail($id);
             return response()->json([
                 'status' => 'success',
-                'data' => $barang
+                'data' => [
+                    'id' => $barang->id,
+                    'nama' => $barang->nama,
+                    'stok' => $barang->stok,
+                    // ...other fields as needed
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

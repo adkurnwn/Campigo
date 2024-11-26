@@ -44,10 +44,18 @@ const fetchCart = async () => {
 
 const updateQuantity = async (id, quantity) => {
     try {
+        // First check the stock availability
+        const barang = await axios.get(`/api/barang/${id}`);
+        if (quantity > barang.data.data.stok) {
+            useToast().showErrorToast(`Stok tidak mencukupi. Stok tersedia: ${barang.data.data.stok}`);
+            return;
+        }
+
         await axios.put(`/api/cart/update/${id}`, { quantity });
         await fetchCart();
     } catch (error) {
         console.error('Error updating quantity:', error);
+        useToast().showErrorToast('Gagal mengubah jumlah barang');
     }
 };
 

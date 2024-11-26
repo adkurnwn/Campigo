@@ -159,7 +159,16 @@ class TransaksiSewaResource extends Resource
                 Action::make('approve_pelunasan')
                     ->label('Selesai')
                     ->icon('heroicon-o-check')
-                    ->action(fn (TransaksiSewa $record) => $record->update(['status' => 'selesai']))
+                    ->action(function (TransaksiSewa $record) {
+                        // Update transaction status
+                        $record->update(['status' => 'selesai']);
+                        
+                        // Increase stock for each item
+                        foreach ($record->itemsOrders as $itemOrder) {
+                            $barang = $itemOrder->barang;
+                            $barang->increment('stok', $itemOrder->quantity);
+                        }
+                    })
                     ->visible(fn (TransaksiSewa $record) => $record->status === 'pelunasan diperiksa')
                     ->requiresConfirmation()
                     ->color('success'),

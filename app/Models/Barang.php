@@ -39,4 +39,15 @@ class Barang extends Model implements HasMedia
     {
         return $this->hasMany(TransaksiSewa::class);
     }
+
+    public function decrement($column, $amount = 1, array $extra = [])
+    {
+        // Ensure stock doesn't go below 0
+        if ($column === 'stok') {
+            if ($this->stok < $amount) {
+                throw new \Exception("Stok tidak mencukupi untuk {$this->nama}");
+            }
+        }
+        return parent::decrement($column, $amount, $extra);
+    }
 }
