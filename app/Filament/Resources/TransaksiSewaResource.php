@@ -2,20 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TransaksiSewaResource\Pages;
-use App\Filament\Resources\TransaksiSewaResource\RelationManagers;
-use App\Models\TransaksiSewa;
-use App\Models\ItemsOrder;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\ItemsOrder;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\ViewField;
+use App\Models\TransaksiSewa;
+use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\ViewField;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\TransaksiSewaResource\Pages;
+use App\Filament\Resources\TransaksiSewaResource\RelationManagers;
+use App\Filament\Resources\TransaksiSewaResource\Pages\PeriksaBarangLivewire;
 
 class TransaksiSewaResource extends Resource
 {
@@ -68,7 +70,11 @@ class TransaksiSewaResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_harga')
                     ->money('idr')
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(function($record) {
+                        return $record->total_harga + ($record->total_denda ?? 0);
+                    })
+                    ->label('Total (inc. Denda)'),
                 Tables\Columns\TextColumn::make('metode_bayar')
                     ->badge()
                     ->label('Metode Bayar'),
@@ -166,38 +172,12 @@ class TransaksiSewaResource extends Resource
                     ->requiresConfirmation()
                     ->color('danger'),
 
-                Action::make('inspect')
+                Action::make('periksa_barang')
                     ->label('Periksa')
                     ->icon('heroicon-o-clipboard-document-check')
-                    ->form(function (TransaksiSewa $record) {
-                        $formFields = [];
-                        foreach ($record->itemsOrder as $item) {
-                            $formFields[] = Forms\Components\Select::make("data.{$item->id}.kondisi")
-                                ->label($item->barang->name . " ({$item->quantity} unit)")
-                                ->options([
-                                    'normal' => 'Normal',
-                                    'rusak ringan' => 'Rusak Ringan',
-                                    'rusak berat' => 'Rusak Berat',
-                                    'hilang' => 'Hilang',
-                                ])
-                                ->required();
-                        }
-                        return $formFields;
-                    })
-                    ->action(function (array $data, TransaksiSewa $record): void {
-                        foreach ($data as $itemId => $values) {
-                            if (isset($values['kondisi'])) {
-                                ItemsOrder::where('id', $itemId)
-                                    ->where('transaksi_sewa_id', $record->id)
-                                    ->update([
-                                        'kondisi' => $values['kondisi']
-                                    ]);
-                            }
-                        }
-                        $record->update(['status' => 'pelunasan']);
-                    })
+                    ->url(fn (TransaksiSewa $record): string => 
+                        PeriksaBarangLivewire::getUrl(['record' => $record]))
                     ->visible(fn (TransaksiSewa $record) => $record->status === 'diperiksa')
-                    ->modalWidth('md')
                     ->color('warning'),
             ])
             ->bulkActions([
@@ -220,6 +200,7 @@ class TransaksiSewaResource extends Resource
             'index' => Pages\ListTransaksiSewas::route('/'),
             'create' => Pages\CreateTransaksiSewa::route('/create'),
             'edit' => Pages\EditTransaksiSewa::route('/{record}/edit'),
+            'periksa-barang' => Pages\PeriksaBarangLivewire::route('/{record}/periksa-barang'),
         ];
     }
 

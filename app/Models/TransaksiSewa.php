@@ -21,7 +21,8 @@ class TransaksiSewa extends Model
         'updated_at',
         'payment_method',
         'metode_bayar_lunas',
-        'image_path_lunas', // Add this new field
+        'image_path_lunas',
+        'total_denda',
     ];
 
     public function itemsOrders()

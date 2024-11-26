@@ -62,4 +62,12 @@ class ItemsOrderController extends Controller
     {
         //
     }
+
+    /**
+     * Update the kondisi of the specified resource in storage.
+     */
+    public function updateKondisi(Request $request)
+    {
+        
+    }
 }

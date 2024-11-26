@@ -180,6 +180,7 @@
                     <div v-if="transaction.status === 'belum bayar'" class="border-t border-gray-200 pt-4">
                         <button 
                             @click="openUploadModal(transaction)"
+                            class="w-full px-6 py-3 bg-teal-600 hover:bg-teal-900 text-white rounded-full font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
                         >
                             Upload Bukti Pembayaran
                         </button>
