@@ -1,14 +1,36 @@
 
 @if($record->jaminanKtp)
     <!-- Transaction Info -->
-    <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+    <div class="flex gap-8 py-4 px-6 bg-gray-200 rounded-lg justify-between">
         <div>
-            <p class="text-sm text-gray-500">Transaction ID</p>
-            <p class="font-medium">#{{ $record->id }}</p>
+            <div>
+                <p class="text-sm text-gray-500">Transaction ID</p>
+                <p class="font-medium">#{{ $record->id }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <p class="font-medium">{{ $record->status }}</p>
+            </div>
         </div>
         <div>
-            <p class="text-sm text-gray-500">Status</p>
-            <p class="font-medium">{{ $record->status }}</p>
+            <div>
+                <p class="text-sm text-gray-500">Nama Customer</p>
+                <p class="font-medium">{{ $record->user->name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Email</p>
+                <p class="font-medium">{{ $record->user->email }}</p>
+            </div>
+        </div>
+        <div>
+            <div>
+                <p class="text-sm text-gray-500">Tanggal Pinjam</p>
+                <p class="font-medium">{{ $record->tgl_pinjam }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Tanggal Kembali</p>
+                <p class="font-medium">{{ $record->tgl_kembali }}</p>
+            </div>
         </div>
     </div>
     <div class="flex justify-center">

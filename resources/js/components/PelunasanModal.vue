@@ -18,7 +18,7 @@ const fileInput = ref(null);
 
 const remainingAmount = computed(() => {
     if (!props.transaction) return 0;
-    return props.transaction.total_harga - props.transaction.dp_amount;
+    return props.transaction.total_harga - props.transaction.dp_amount + props.transaction.total_denda;
 });
 
 const formatPrice = (price) => {
@@ -93,7 +93,7 @@ const submitPelunasan = async () => {
                     <h3 class="text-2xl font-playfair font-bold text-gray-900">Lunasi Pembayaran</h3>
                     
                     <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-900 mb-2">Sisa yang harus dibayar:</h4>
+                        <h4 class="font-medium text-gray-900 mb-2">Sisa yang harus dibayar ditambah denda (jika ada):</h4>
                         <p class="text-2xl font-semibold text-teal-600">
                             Rp {{ formatPrice(remainingAmount) }}
                         </p>

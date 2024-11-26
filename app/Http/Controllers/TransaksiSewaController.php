@@ -149,6 +149,7 @@ class TransaksiSewaController extends Controller
                         'dp_amount' => $transaction->dp_amount,
                         'status' => $transaction->status,
                         'payment_method' => $transaction->payment_method,
+                        'total_denda' => $transaction->total_denda,
                         'items' => $transaction->itemsOrders->map(function ($item) {
                             return [
                                 'barang_id' => $item->barang->id,
@@ -157,7 +158,9 @@ class TransaksiSewaController extends Controller
                                 'image' => $item->barang->image,
                                 'quantity' => $item->quantity,
                                 'price_per_day' => $item->price_per_day,
-                                'subtotal' => $item->subtotal
+                                'subtotal' => $item->subtotal,
+                                'denda' => $item->denda,
+                                'kondisi' => $item->kondisi,
                             ];
                         })
                     ];
