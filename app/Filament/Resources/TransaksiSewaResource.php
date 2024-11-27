@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use App\Models\TransaksiSewa;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
+use Illuminate\Support\Facades\Storage;  // Add this line
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\ViewField;
@@ -161,6 +162,12 @@ class TransaksiSewaResource extends Resource
                     ->label('Selesai')
                     ->icon('heroicon-o-check')
                     ->action(function (TransaksiSewa $record) {
+                        // Delete KTP image if exists
+                        if ($record->jaminanKtp) {
+                            Storage::disk('public')->delete($record->jaminanKtp->image_path);
+                            $record->jaminanKtp->delete();
+                        }
+                        
                         // Update transaction status
                         $record->update(['status' => 'selesai']);
                         
@@ -216,6 +223,7 @@ class TransaksiSewaResource extends Resource
     }
 
     public static function canCreate(): bool
+
    {
       return false;
    }

@@ -18,7 +18,7 @@ const fileInput = ref(null);
 
 const remainingAmount = computed(() => {
     if (!props.transaction) return 0;
-    return props.transaction.total_harga - props.transaction.dp_amount + props.transaction.total_denda;
+    return props.transaction.total_harga /2 + props.transaction.total_denda;
 });
 
 const formatPrice = (price) => {

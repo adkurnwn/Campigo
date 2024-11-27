@@ -58,6 +58,16 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 
+    public function isActive()
+    {
+        return $this->statususer === 'active';
+    }
+
+    public function isBanned()
+    {
+        return $this->statususer === 'banned';
+    }
+
     public function transaksiSewa()
     {
         return $this->hasMany(TransaksiSewa::class);
