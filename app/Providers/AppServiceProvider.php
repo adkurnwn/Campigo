@@ -6,6 +6,7 @@ use App\Filament\MyLogoutResponse;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Events\Authenticated;
 use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
@@ -50,5 +51,13 @@ class AppServiceProvider extends ServiceProvider
                     ->withErrors(['email' => 'Akun Anda tidak aktif. Silakan hubungi admin pada Whatsapp 08123456789 untuk mengaktifkan kembali.']));
             }
         });
+
+        Route::middleware('web')
+            ->group(base_path('routes/web.php'));
+
+        // Add secure file routes
+        Route::middleware(['web', 'auth'])
+            ->prefix('secure')
+            ->group(base_path('routes/secure.php'));
     }
 }
