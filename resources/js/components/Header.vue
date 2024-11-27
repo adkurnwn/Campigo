@@ -40,15 +40,15 @@
                 </router-link>
             </li>
             <li>
-                <router-link to="/contact"
+                <router-link to="/rules"
                     class="relative py-2 transition-all duration-300 ease-in-out hover:text-black" :class="{
                         'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent': $route.path === '/contact',
-                        'text-gray-600': $route.path !== '/contact'
+                        'text-gray-600': $route.path !== '/rules'
                     }">
-                    <span>Contact</span>
+                    <span>Rules</span>
                     <span
                         class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 transform origin-left transition-transform duration-300 ease-out"
-                        :class="$route.path === '/contact' ? 'scale-x-100' : 'scale-x-0'"></span>
+                        :class="$route.path === '/rules' ? 'scale-x-100' : 'scale-x-0'"></span>
                 </router-link>
             </li>
         </ul>

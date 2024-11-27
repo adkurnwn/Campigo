@@ -30,7 +30,7 @@
                 </div>
                 <!-- Column 3 -->
                 <div>
-                    <h4 class="font-semibold mb-6">Company</h4>
+                    <h4 class="font-semibold mb-6 text-teal-600">Company</h4>
                     <ul class="text-gray-500 space-y-2">
                         <li><router-link to="/team">Our Team</router-link></li>
                         <li><router-link to="/partner">Partner With Us</router-link></li>
@@ -39,7 +39,7 @@
                 </div>
                 <!-- Column 4 -->
                 <div>
-                    <h4 class="font-semibold mb-6">Contact</h4>
+                    <h4 class="font-semibold mb-6 text-teal-600">Contact</h4>
                     <ul class="text-gray-500 space-y-2">
                         <li><router-link to="/getting-started">Getting Started</router-link></li>
                         <li><router-link to="/pricing">Pricing</router-link></li>

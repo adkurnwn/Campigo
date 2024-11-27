@@ -26,11 +26,11 @@
             <div v-for="transaction in filteredTransactions" :key="transaction.id"
                 class="bg-white rounded-lg shadow-md overflow-hidden">
                 <!-- Header Section -->
-                <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4">
+                <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-8">
                     <div class="flex justify-between items-center">
                         <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ transaction.id }}</h3>
                         <span class="px-3 py-1 text-sm font-medium rounded-full" :class="{
-                            'bg-gray-100 text-gray-800': transaction.status === 'belum bayar',
+                            'bg-gray-100 text-gray-800': transaction.status === 'belum bayar' || transaction.status === 'pelunasan',
                             'bg-yellow-100 text-yellow-800': transaction.status === 'pending' || transaction.status === 'diperiksa' || transaction.status === 'pelunasan diperiksa',
                             'bg-teal-100 text-teal-800': transaction.status === 'pembayaran terkonfirmasi' || transaction.status === 'berlangsung',
                             'bg-blue-100 text-blue-800': transaction.status === 'selesai',
@@ -43,7 +43,7 @@
                 </div>
 
                 <!-- Content Section -->
-                <div class="p-6 space-y-6">
+                <div class="p-8 space-y-6">
                     <!-- Dates and Payment Info -->
                     <div class="grid md:grid-cols-2 gap-6">
                         <div class="space-y-2">
@@ -68,43 +68,60 @@
                                 'grid-cols-1': transaction.status !== 'pelunasan'
                             }">
                                 <!-- Price Column -->
-                                <div class="space-y-2">
-                                    <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
+                                <div v-if="transaction.status !== 'selesai'" class="space-y-2">
+                                    <div
+                                        class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
                                         <p class="text-lg font-semibold text-teal-600">
-                                            <div class="flex justify-between">
-                                                <span>Subtotal:</span>
-                                                <span>Rp {{ formatPrice(transaction.total_harga) }}</span>
-                                            </div>
+                                        <div class="flex justify-between">
+                                            <span>Subtotal:</span>
+                                            <span>Rp {{ formatPrice(transaction.total_harga) }}</span>
+                                        </div>
                                         </p>
                                     </div>
-                                    <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
+                                    <div
+                                        class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
                                         <p class="text-lg font-semibold text-teal-600">
-                                            <div class="flex justify-between">
-                                                <span>DP:</span>
-                                                <span>Rp {{ formatPrice(transaction.total_harga/2) }}</span>
-                                            </div>
+                                        <div class="flex justify-between">
+                                            <span>DP:</span>
+                                            <span>Rp {{ formatPrice(transaction.total_harga / 2) }}</span>
+                                        </div>
                                         </p>
                                     </div>
                                 </div>
 
                                 <!-- Additional Fees Column - Only shown when status is pelunasan -->
                                 <div v-if="transaction.status === 'pelunasan'" class="space-y-2">
-                                    <div class="bg-gradient-to-r from-red-600/10 via-orange-600/10 to-yellow-600/10 rounded-lg px-4 py-2">
+                                    <div
+                                        class="bg-gradient-to-r from-red-600/10 via-orange-600/10 to-yellow-600/10 rounded-lg px-4 py-2">
                                         <p class="text-lg font-semibold text-red-600">
-                                            <div class="flex justify-between">
-                                                <span>Denda:</span>
-                                                <span>Rp {{ formatPrice(transaction.total_denda) }}</span>
-                                            </div>
+                                        <div class="flex justify-between">
+                                            <span>Denda:</span>
+                                            <span>Rp {{ formatPrice(transaction.total_denda) }}</span>
+                                        </div>
                                         </p>
                                     </div>
-                                    <div class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
+                                    <div
+                                        class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
                                         <p class="text-lg font-semibold text-teal-600">
-                                            <div class="flex justify-between">
-                                                <span>Pelunasan:</span>
-                                                <span>Rp {{ formatPrice(transaction.total_harga+transaction.total_denda) }}</span>
-                                            </div>
+                                        <div class="flex justify-between">
+                                            <span>Pelunasan:</span>
+                                            <span>Rp {{ formatPrice(transaction.total_harga + transaction.total_denda)
+                                                }}</span>
+                                        </div>
                                         </p>
                                     </div>
+                                </div>
+                            </div>
+                            <div v-if="transaction.status === 'selesai'">
+                                <div
+                                    class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2">
+                                    <p class="text-lg font-semibold text-teal-600">
+                                    <div class="flex justify-between">
+                                        <span>Total Transaksi:</span>
+                                        <span>Rp {{ formatPrice(transaction.total_harga + transaction.total_denda)
+                                            }}</span>
+                                    </div>
+                                    </p>
                                 </div>
                             </div>
 
@@ -202,18 +219,20 @@
                         <div
                             class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4 rounded-lg mb-4">
                             <h4 class="text-teal-800 font-medium mb-2">Informasi Pengambilan:</h4>
-                            <p class="text-teal-600">Silakan ambil barang di Campigo setelah tanggal <span class="font-bold">{{ formatDate(transaction.tgl_pinjam) }} </span> pukul 05:00 WIB dengan menunjukkan ID transaksi:
+                            <p class="text-teal-600">Silakan ambil barang di Campigo setelah tanggal <span
+                                    class="font-bold">{{ formatDate(transaction.tgl_pinjam) }} </span> pukul 05:00 WIB
+                                dengan menunjukkan ID transaksi:
                                 #{{ transaction.id }}</p>
-                            <p class="text-teal-600 mt-1">Mohon untuk menyiapkan identitas seperti KTP sebagai jaminan</p>
+                            <p class="text-teal-600 mt-1">Mohon untuk menyiapkan identitas seperti KTP sebagai jaminan
+                            </p>
                             <p class="text-teal-600 mt-1">Alamat: Jl. Urip Sumoharjo No. 555, Jebres, Surakarta</p>
-                           
+
                         </div>
-                        <button @click="openWebcam(transaction)"
-                            :disabled="!isPickupTime(transaction.tgl_pinjam)"
+                        <button @click="openWebcam(transaction)" :disabled="!isPickupTime(transaction.tgl_pinjam)"
                             :class="[
                                 'w-full px-6 py-3 rounded-full font-medium transform transition-all duration-300',
-                                isPickupTime(transaction.tgl_pinjam) 
-                                    ? 'bg-teal-600 hover:bg-teal-900 text-white hover:scale-105 hover:shadow-lg' 
+                                isPickupTime(transaction.tgl_pinjam)
+                                    ? 'bg-teal-600 hover:bg-teal-900 text-white hover:scale-105 hover:shadow-lg'
                                     : 'bg-gray-300 cursor-not-allowed text-gray-600'
                             ]">
                             {{ isPickupTime(transaction.tgl_pinjam) ? 'Ambil Barang' : 'Belum waktunya pengambilan' }}
@@ -225,10 +244,11 @@
                         <div
                             class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4 rounded-lg mb-4">
                             <h4 class="text-teal-800 font-medium mb-2">Informasi Pengembalian:</h4>
-                            <p class="text-teal-600 mt-1">Barang yang anda kembalikan sedang diperiksa, silakan menunggu beberapa saat.</p>
-                           
+                            <p class="text-teal-600 mt-1">Barang yang anda kembalikan sedang diperiksa, silakan menunggu
+                                beberapa saat.</p>
+
                         </div>
-                    
+
                     </div>
 
                     <!-- Pesan pelunasan -->
@@ -236,20 +256,22 @@
                         <div
                             class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4 rounded-lg mb-4">
                             <h4 class="text-teal-800 font-medium mb-2">Informasi Pelunasan:</h4>
-                            <p class="text-teal-600 mt-1">Mohon lunasi sisa pelunasan, pastikan jumlah pelunasan sesuai.</p>
-                           
+                            <p class="text-teal-600 mt-1">Mohon lunasi sisa pelunasan, pastikan jumlah pelunasan sesuai.
+                            </p>
+
                         </div>
-                    
+
                     </div>
                     <!-- Pesan pelunasan diperiksa -->
                     <div v-if="transaction.status === 'pelunasan diperiksa'" class="border-t border-gray-200 pt-4">
                         <div
                             class="bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 p-4 rounded-lg mb-4">
                             <h4 class="text-teal-800 font-medium mb-2">Informasi Pelunasan:</h4>
-                            <p class="text-teal-600 mt-1">Pelunasan anda dapat ditolak apabila jumlah pelunasan tidak sesuai, mohon cek secara berkala.</p>
-                           
+                            <p class="text-teal-600 mt-1">Pelunasan anda dapat ditolak apabila jumlah pelunasan tidak
+                                sesuai, mohon cek secara berkala.</p>
+
                         </div>
-                    
+
                     </div>
 
                     <!-- Pelunasan Button -->
@@ -280,13 +302,9 @@
             @success="fetchTransactions" />
 
         <!-- Add ConfirmationModal -->
-        <ConfirmationModal
-            :show="showConfirmationModal"
-            title="Konfirmasi Pengembalian"
-            message="Apakah Anda yakin ingin mengembalikan barang?"
-            @close="showConfirmationModal = false"
-            @confirm="confirmReturn"
-        />
+        <ConfirmationModal :show="showConfirmationModal" title="Konfirmasi Pengembalian"
+            message="Apakah Anda yakin ingin mengembalikan barang?" @close="showConfirmationModal = false"
+            @confirm="confirmReturn" />
     </div>
 </template>
 
@@ -522,15 +540,15 @@ export default {
         },
         isPickupTime(pickupDate) {
             if (!this.serverTime) return false;
-            
+
             const pickup = new Date(pickupDate);
             pickup.setHours(5, 0, 0, 0);
-            
+
             // Check if it's the same day and after 05:00
-            return this.serverTime.getDate() === pickup.getDate() && 
-                   this.serverTime.getMonth() === pickup.getMonth() &&
-                   this.serverTime.getFullYear() === pickup.getFullYear() &&
-                   this.serverTime >= pickup;
+            return this.serverTime.getDate() === pickup.getDate() &&
+                this.serverTime.getMonth() === pickup.getMonth() &&
+                this.serverTime.getFullYear() === pickup.getFullYear() &&
+                this.serverTime >= pickup;
         },
         async fetchServerTime() {
             try {
@@ -539,7 +557,7 @@ export default {
                         timeZone: 'Asia/Jakarta'
                     }
                 });
-                
+
                 if (response.data) {
                     this.serverTime = new Date(response.data.dateTime);
                 }
