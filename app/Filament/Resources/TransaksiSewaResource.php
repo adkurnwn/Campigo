@@ -167,6 +167,7 @@ class TransaksiSewaResource extends Resource
                         foreach ($record->itemsOrders as $itemOrder) {
                             $barang = $itemOrder->barang;
                             $barang->increment('stok', $itemOrder->quantity);
+                            $barang->increment('count_disewa', $itemOrder->quantity);
                         }
                     })
                     ->visible(fn (TransaksiSewa $record) => $record->status === 'pelunasan diperiksa')

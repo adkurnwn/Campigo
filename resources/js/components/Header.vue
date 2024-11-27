@@ -1,6 +1,7 @@
 <template>
     <header
-        class="bg-white bg-opacity-25 py-4 px-6 flex justify-between items-center sticky top-0 z-50 backdrop-filter backdrop-blur-lg">
+        class="py-4 px-6 flex justify-between items-center sticky top-0 z-50 transition-colors duration-300"
+        :class="{'bg-teal': isAtTop, 'bg-white bg-opacity-25 backdrop-filter backdrop-blur-lg': !isAtTop}">
         <router-link to="/" class="flex items-center gap-2">
             <img src="/storage/app/public/img/campigo.png" alt="Campigo Logo" class="h-8 w-auto" />
             <div class="text-2xl font-bold text-teal-600">
@@ -219,7 +220,8 @@ export default {
             isAuthenticated: false,
             isDropdownOpen: false,
             showLogoutModal: false,
-            cartCount: 0, // Add this line
+            cartCount: 0,
+            isAtTop: true,
         }
     },
     setup() {
@@ -230,7 +232,7 @@ export default {
     },
     created() {
         this.checkAuthStatus();
-        this.updateCartCount(); // Add this line
+        this.updateCartCount();
     },
     methods: {
         toggleMobileMenu() {
@@ -281,15 +283,20 @@ export default {
         },
         toggleCart() {
             this.cartModalRef.openModal();
-            this.updateCartCount(); // Add this line
+            this.updateCartCount();
+        },
+        handleScroll() {
+            this.isAtTop = window.scrollY === 0;
         },
     },
     mounted() {
         document.addEventListener('click', this.handleClickOutside);
         document.getElementById('mobile-menu-button').addEventListener('click', this.toggleMobileMenu);
+        window.addEventListener('scroll', this.handleScroll);
     },
     beforeDestroy() {
         document.removeEventListener('click', this.handleClickOutside);
+        window.removeEventListener('scroll', this.handleScroll);
     }
 }
 </script>

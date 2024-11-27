@@ -44,11 +44,10 @@ class BarangResource extends Resource
                         TextInput::make('kode')->required()->unique(ignorable: fn($record) => $record),
                         TextInput::make('nama')->required(),
                         TextInput::make('merk'),
-                        //TextInput::make('stok')->numeric(),
+                        TextInput::make('stok')->numeric(),
                         TextInput::make('kapasitas')->numeric(),
-                        //TextInput::make('berat')->numeric(),
-                        //TextInput::make('harga')->numeric()->prefix('Rp ')->required(),
-                        //TextInput::make('berat')->numeric()->suffix('gram')->required(),
+                        TextInput::make('harga')->numeric()->prefix('Rp ')->required(),
+                        TextInput::make('berat')->numeric()->suffix('gram'),
                         TextInput::make('stok')->numeric()->required(),
                         Select::make('kategori')
                             ->options([
@@ -60,9 +59,9 @@ class BarangResource extends Resource
                                 'Wears' => 'Wears',
                                 'Lainnya' => 'Lainnya',
                             ])->required(),
-                        //SpatieMediaLibraryFileUpload::make('image') // The name of the field in the database
-                            //->label('Upload Gambar'),
-                        //RichEditor::make('deskripsi'),
+                        SpatieMediaLibraryFileUpload::make('image') // The name of the field in the database
+                            ->label('Upload Gambar'),
+                        RichEditor::make('deskripsi'),
 
                     ])
                     ->columns(3),

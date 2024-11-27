@@ -1,5 +1,5 @@
 <template>
-    <footer class="bg-gradient-to-b from-white to-teal-100 py-8">
+    <footer class="bg-gradient-to-b from-white to-teal-100 pb-8">
         <div class="w-full h-4 bg-teal-600 mb-8"></div>
         <div class="px-2">
             <div class="flex grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto justify-around">

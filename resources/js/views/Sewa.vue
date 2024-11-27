@@ -1,5 +1,5 @@
 <template>
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-8 py-8">
         <h1 class="text-3xl font-playfair font-bold text-gray-900 tracking-tight mb-8">Sewaan Saya</h1>
 
         <!-- Status Filters -->

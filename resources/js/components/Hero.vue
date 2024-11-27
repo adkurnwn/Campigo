@@ -21,7 +21,7 @@
         </div>
 
       <!-- Right Image -->
-      <div class="w-full lg:w-2/3">
+      <div class="w-full lg:w-2/3 py-2">
         <img
             src="/storage/app/public/img/herocampigo.png"
           alt="Outdoor adventure scene" class="w-full h-auto rounded-lg shadow-lg object-cover" loading="lazy" />

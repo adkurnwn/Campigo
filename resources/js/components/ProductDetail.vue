@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Category and Stock -->
-                <div class="flex items-center space-x-6 border-t border-gray-200 pt-4">
+                <div class="flex items-center space-x-1 border-t border-gray-200 pt-4">
                     <div class="flex items-center space-x-2">
                         <span class="text-sm text-gray-500">Kategori:</span>
                         <span class="px-3 py-1 text-sm font-medium text-teal-600 bg-teal-100 rounded-full">
@@ -59,7 +59,7 @@
                     <div class="flex items-center space-x-2">
                         <span class="text-sm text-gray-500">Berat:</span>
                         <span class="px-3 py-1 text-sm font-medium text-teal-600 bg-teal-100 rounded-full">
-                            {{ barang.berat ?? 'null' }} {{ barang.berat ? 'gram' : '' }}
+                            {{ barang.berat ?? 'null' }} {{ barang.berat ? 'g' : '' }}
                         </span>
                     </div>
 
@@ -71,7 +71,14 @@
                                 'bg-yellow-50 text-yellow-600': barang.stok <= 5 && barang.stok > 0,
                                 'bg-red-50 text-red-600': barang.stok === 0
                             }">
-                            {{ barang.stok }} unit tersedia
+                            {{ barang.stok }} unit
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">Disewa:</span>
+                        <span class="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+                            {{ barang.count_disewa ?? 0 }} kali
                         </span>
                     </div>
                 </div>

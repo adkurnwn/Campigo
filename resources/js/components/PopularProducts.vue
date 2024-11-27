@@ -1,9 +1,9 @@
 <template>
     <section class="py-10 mx-8">
-        <div class="h1">
-            <h3 class="text-3xl font-playfair font-bold text-gray-900 mb-6 text-center">
-                Produk Terpopuler
-            </h3>
+        <div class="h-auto">
+            <div class="text-3xl font-playfair font-bold p-6 text-center bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-transparent bg-clip-text">
+            Alat Camping Terpopuler
+            </div>
         </div>
         <div class="container mx-auto bg-gradient-to-b ">
             <!-- Decorative Elements -->
@@ -37,7 +37,7 @@ const fetchProducts = async () => {
 
 const topBarangs = computed(() => {
     return barangs.value
-        .sort((a, b) => b.stock - a.stock)
+        .sort((a, b) => b.count_disewa - a.count_disewa)
         .slice(0, 3);
 });
 

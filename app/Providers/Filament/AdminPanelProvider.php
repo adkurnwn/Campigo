@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('13rem')
+            ->spa()
             ->brandLogo(asset('favicon.png'))
             ->brandLogoHeight('32px')
             ->brandName('Campigo Admin Panel')
