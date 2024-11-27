@@ -64,8 +64,8 @@
                         <div class="space-y-2">
                             <!-- Price Container -->
                             <div class="grid gap-2 w-full" :class="{
-                                'grid-cols-2': transaction.status === 'pelunasan',
-                                'grid-cols-1': transaction.status !== 'pelunasan'
+                                'grid-cols-2': transaction.status === 'pelunasan' || transaction.status === 'pelunasan diperiksa',
+                                'grid-cols-1': transaction.status !== 'pelunasan' || transaction.status !== 'pelunasan diperiksa',
                             }">
                                 <!-- Price Column -->
                                 <div v-if="transaction.status !== 'selesai'" class="space-y-2">
@@ -90,7 +90,7 @@
                                 </div>
 
                                 <!-- Additional Fees Column - Only shown when status is pelunasan -->
-                                <div v-if="transaction.status === 'pelunasan'" class="space-y-2">
+                                <div v-if="transaction.status === 'pelunasan' || transaction.status === 'pelunasan diperiksa'" class="space-y-2">
                                     <div
                                         class="bg-gradient-to-r from-red-600/10 via-orange-600/10 to-yellow-600/10 rounded-lg px-4 py-2">
                                         <p class="text-lg font-semibold text-red-600">
@@ -105,7 +105,7 @@
                                         <p class="text-lg font-semibold text-teal-600">
                                         <div class="flex justify-between">
                                             <span>Pelunasan:</span>
-                                            <span>Rp {{ formatPrice(transaction.total_harga + transaction.total_denda)
+                                            <span>Rp {{ formatPrice(transaction.total_harga/2 + transaction.total_denda)
                                                 }}</span>
                                         </div>
                                         </p>
@@ -179,13 +179,35 @@
                                         </span>
                                         <span class="mx-2">·</span>
                                         <span>Rp {{ formatPrice(item.price_per_day) }}/hari</span>
+                                        <!-- Add denda if exists -->
+                                        <template v-if="item.denda">
+                                            <span class="mx-2">·</span>
+                                            <span class="text-red-600">Denda: Rp {{ formatPrice(item.denda) }}</span>
+                                        </template>
+                                    </div>
+                                    <!-- Add kondisi_kembali if exists -->
+                                    <div v-if="item.kondisi_kembali" class="mt-1 flex flex-wrap gap-2">
+                                        <template v-for="(count, condition) in getConditionCounts(item.kondisi_kembali)" :key="condition">
+                                            <span :class="{
+                                                'px-2 py-0.5 rounded-full text-xs font-medium': true,
+                                                'bg-green-100 text-green-600': condition === 'normal',
+                                                'bg-red-100 text-red-600': condition === 'hilang',
+                                                'bg-yellow-100 text-yellow-600': condition === 'rusak ringan',
+                                                'bg-orange-100 text-orange-600': condition === 'rusak berat'
+                                            }">
+                                                {{ condition }}: {{ count }}
+                                            </span>
+                                        </template>
                                     </div>
                                 </div>
 
                                 <!-- Item Total -->
-                                <div class="flex-shrink-0 text-right">
-                                    <span class="text-teal-600 font-medium">
-                                        Rp {{ formatPrice(item.subtotal) }}
+                                <div class="flex-shrink-0 text-right flex flex-col">
+                                    <span class="text-teal-600 text-sm">
+                                       Subtotal Rp {{ formatPrice(item.subtotal) }}
+                                    </span>
+                                    <span class="text-red-600 font-medium">
+                                       Total Rp {{ formatPrice(item.subtotal + item.denda) }}
                                     </span>
                                 </div>
                             </div>
@@ -567,6 +589,25 @@ export default {
                 this.serverTime = new Date();
             }
         },
+        getConditionCounts(conditions) {
+            if (!conditions) return {};
+            
+            // Convert string to array if it's a JSON string
+            const conditionsArray = typeof conditions === 'string' 
+                ? JSON.parse(conditions) 
+                : conditions;
+            
+            // Count occurrences of each condition
+            const counts = conditionsArray.reduce((acc, curr) => {
+                acc[curr] = (acc[curr] || 0) + 1;
+                return acc;
+            }, {});
+            
+            // Return only conditions with count > 0
+            return Object.fromEntries(
+                Object.entries(counts).filter(([_, count]) => count > 0)
+            );
+        }
     }
 }
 </script>

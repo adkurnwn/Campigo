@@ -21,6 +21,10 @@ class ItemsOrder extends Model
         'kondisi_kembali',  // Add this field
     ];
 
+    protected $casts = [
+        'kondisi_kembali' => 'array'
+    ];
+
     public function transaksiSewa()
     {
         return $this->belongsTo(TransaksiSewa::class);

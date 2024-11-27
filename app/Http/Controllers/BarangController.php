@@ -148,6 +148,12 @@ class BarangController extends Controller
                     'id' => $barang->id,
                     'nama' => $barang->nama,
                     'stok' => $barang->stok,
+                    'harga' => $barang->harga,
+                    'merk' => $barang->merk,
+                    'deskripsi' => $barang->deskripsi,
+                    'image' => $barang->image,
+                    'count_disewa' => $barang->count_disewa,
+                    'kategori' => $barang->kategori,
                     // ...other fields as needed
                 ]
             ]);

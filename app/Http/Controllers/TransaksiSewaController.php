@@ -152,6 +152,11 @@ class TransaksiSewaController extends Controller
     public function getUserTransactions()
     {
         try {
+            // Cancel expired transactions and update penalties
+            $this->cancelExpiredTransactions();
+            $this->updateLatePenalties();
+
+            // Rest of the method remains the same
             $transactions = TransaksiSewa::with(['itemsOrders.barang', 'user'])
                 ->where('user_id', Auth::id())
                 ->orderBy('created_at', 'desc')
@@ -176,7 +181,7 @@ class TransaksiSewaController extends Controller
                                 'price_per_day' => $item->price_per_day,
                                 'subtotal' => $item->subtotal,
                                 'denda' => $item->denda,
-                                'kondisi' => $item->kondisi,
+                                'kondisi_kembali' => $item->kondisi_kembali,
                             ];
                         })
                     ];
@@ -238,5 +243,20 @@ class TransaksiSewaController extends Controller
         return TransaksiSewa::where('user_id', Auth::id())
             ->whereNotIn('status', ['selesai', 'dibatalkan'])
             ->exists();
+    }
+
+    private function cancelExpiredTransactions()
+    {
+        TransaksiSewa::expiredUnpaid()->update(['status' => 'dibatalkan']);
+    }
+
+    private function updateLatePenalties()
+    {
+        $lateTransactions = TransaksiSewa::lateReturns()->get();
+        
+        foreach ($lateTransactions as $transaction) {
+            $penalty = $transaction->calculateLatePenalty();
+            $transaction->update(['total_denda' => $penalty]);
+        }
     }
 }

@@ -37,13 +37,23 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->barang->merk }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $item->quantity }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <select wire:model.live="kondisiKembali.{{ $item->id }}" class="rounded-md border-gray-300">
-                                    <option value="normal">Normal</option>
-                                    <option value="rusak ringan">Rusak Ringan</option>
-                                    <option value="rusak berat">Rusak Berat</option>
-                                    <option value="hilang">Hilang</option>
-                                </select>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <div class="flex flex-col space-y-3">
+                                    @for($i = 0; $i < $item->quantity; $i++)
+                                        <div class="flex flex-col">
+                                            <label class="text-xs text-gray-500 mb-1">Item {{ $i + 1 }}</label>
+                                            <select 
+                                                wire:model.live="kondisiKembali.{{ $item->id }}.{{ $i }}" 
+                                                class="rounded-md border-gray-300 text-sm min-w-[200px]"
+                                            >
+                                                <option value="normal">Normal</option>
+                                                <option value="rusak ringan">Rusak Ringan</option>
+                                                <option value="rusak berat">Rusak Berat</option>
+                                                <option value="hilang">Hilang</option>
+                                            </select>
+                                        </div>
+                                    @endfor
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 Rp {{ number_format($this->hitungDenda($item->id), 0, ',', '.') }}

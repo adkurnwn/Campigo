@@ -26,29 +26,32 @@ class PeriksaBarangLivewire extends Page
         }
 
         foreach ($this->record->itemsOrders as $item) {
-            $this->kondisiKembali[$item->id] = $item->kondisi_kembali ?? 'normal';
+            $existingKondisi = json_decode($item->kondisi_kembali ?? '[]', true);
+            $this->kondisiKembali[$item->id] = $existingKondisi ?: array_fill(0, $item->quantity, 'normal');
         }
     }
 
     public function updateKondisi()
     {
         $totalDenda = 0;
-        foreach ($this->kondisiKembali as $itemId => $kondisi) {
+        foreach ($this->kondisiKembali as $itemId => $kondisiArray) {
             $item = ItemsOrder::find($itemId);
             if ($item) {
-                $denda = $this->calculateDenda($kondisi, $item->subtotal);
+                $denda = 0;
+                foreach ($kondisiArray as $kondisi) {
+                    $denda += $this->calculateDenda($kondisi, $item->subtotal / $item->quantity);
+                }
                 $item->update([
-                    'kondisi_kembali' => $kondisi,
+                    'kondisi_kembali' => json_encode($kondisiArray),
                     'denda' => $denda
                 ]);
                 $totalDenda += $denda;
             }
         }
 
-        // Update transaction status and total_denda
         $this->record->update([
             'status' => 'pelunasan',
-            'total_denda' => $totalDenda
+            'total_denda' => $this->record->total_denda + $totalDenda
         ]);
 
         return redirect()->to(TransaksiSewaResource::getUrl());
@@ -61,7 +64,11 @@ class PeriksaBarangLivewire extends Page
             return 0;
         }
         
-        return $this->calculateDenda($this->kondisiKembali[$itemId], $item->subtotal);
+        $denda = 0;
+        foreach ($this->kondisiKembali[$itemId] as $kondisi) {
+            $denda += $this->calculateDenda($kondisi, $item->subtotal / $item->quantity);
+        }
+        return $denda;
     }
 
     public function getTotalDendaProperty()

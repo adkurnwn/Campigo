@@ -37,6 +37,7 @@ class TransaksiSewaResource extends Resource
                         'pembayaran terkonfirmasi' => 'pembayaran terkonfirmasi',
                         'selesai' => 'selesai',
                         'dibatalkan' => 'dibatalkan',
+                        'pelunsan' => 'pelunasan',
                         'berlangsung' => 'berlangsung',
                         'belum bayar' => 'belum bayar',
                         'pelunasan diperiksa' => 'pelunasan diperiksa', // Add this new status
