@@ -7,6 +7,7 @@ use App\Filament\MyLogoutResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Events\Authenticated;
 use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
@@ -28,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //$this->app->bind(LogoutResponseContract::class, MyLogoutResponse::class);
-
+        //Schema::enableForeignKeyConstraints();
         //Logout user dengan status user banned
         Event::listen(Authenticated::class, function ($event) {
             $user = $event->user;
