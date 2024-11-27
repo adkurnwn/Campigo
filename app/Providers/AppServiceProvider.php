@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //$this->app->bind(LogoutResponseContract::class, MyLogoutResponse::class);
+        $this->app->bind(LogoutResponseContract::class, MyLogoutResponse::class);
         //Schema::enableForeignKeyConstraints();
         //Logout user dengan status user banned
         Event::listen(Authenticated::class, function ($event) {
