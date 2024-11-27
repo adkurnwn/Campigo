@@ -7,6 +7,7 @@ use App\Models\Barang;
 use App\Models\ItemsOrder;
 use Illuminate\Http\Request;
 use App\Models\TransaksiSewa;
+use App\Notifications\ReturnReminderEmail;
 use Illuminate\Support\Facades\Auth;
 
 class TransaksiSewaController extends Controller
@@ -152,6 +153,9 @@ class TransaksiSewaController extends Controller
     public function getUserTransactions()
     {
         try {
+            // Add reminder check here
+            $this->sendReturnReminders();
+            
             // Cancel expired transactions and update penalties
             $this->cancelExpiredTransactions();
             $this->updateLatePenalties();
@@ -257,6 +261,16 @@ class TransaksiSewaController extends Controller
         foreach ($lateTransactions as $transaction) {
             $penalty = $transaction->calculateLatePenalty();
             $transaction->update(['total_denda' => $penalty]);
+        }
+    }
+
+    private function sendReturnReminders()
+    {
+        $dueSoonTransactions = TransaksiSewa::dueSoon()->with(['user', 'itemsOrders.barang'])->get();
+        
+        foreach ($dueSoonTransactions as $transaction) {
+            $transaction->user->notify(new ReturnReminderEmail($transaction));
+            $transaction->update(['reminded' => true]);
         }
     }
 }

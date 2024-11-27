@@ -23,6 +23,7 @@ class TransaksiSewa extends Model
         'metode_bayar_lunas',
         'image_path_lunas',
         'total_denda',
+        'reminded',
     ];
 
     public function itemsOrders()
@@ -60,6 +61,16 @@ class TransaksiSewa extends Model
                 $q->whereTime('created_at', '<=', '22:00:00')
                     ->orWhere('created_at', '<', now()->format('Y-m-d'));
             });
+    }
+
+    public function scopeDueSoon($query)
+    {
+        $targetTime = now()->setTime(22, 0, 0);
+        $threeHoursBefore = $targetTime->copy()->subHours(3);
+        
+        return $query->where('status', 'berlangsung')
+            ->whereDate('tgl_kembali', now())
+            ->where('reminded', false);
     }
 
     public function calculateLatePenalty()
