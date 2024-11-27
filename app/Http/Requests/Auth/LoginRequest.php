@@ -42,12 +42,19 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
         
-        // Check if user exists and is banned
         $user = User::where('email', $this->email)->first();
-        if ($user && $user->statususer === 'banned') {
-            throw ValidationException::withMessages([
-                'email' => ['Akun Anda telah diblokir. Silakan hubungi admin pada Whatsapp 08123456789 untuk informasi lebih lanjut.'],
-            ]);
+        if ($user) {
+            if ($user->isBanned()) {
+                throw ValidationException::withMessages([
+                    'email' => ['Akun Anda telah diblokir. Silakan hubungi admin untuk informasi lebih lanjut.'],
+                ]);
+            }
+            
+            if ($user->isNonactive()) {
+                throw ValidationException::withMessages([
+                    'email' => ['Akun Anda tidak aktif. Silakan hubungi admin untuk mengaktifkan kembali.'],
+                ]);
+            }
         }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {

@@ -40,6 +40,15 @@ class AppServiceProvider extends ServiceProvider
                 abort(redirect()->route('login')
                     ->withErrors(['email' => 'Akun Anda telah diblokir. Silakan hubungi admin pada Whatsapp 08123456789 untuk informasi lebih lanjut.']));
             }
+
+            if ($user->isNonactive()) {
+                Auth::logout();
+                session()->invalidate();
+                session()->regenerateToken();
+                
+                abort(redirect()->route('login')
+                    ->withErrors(['email' => 'Akun Anda tidak aktif. Silakan hubungi admin pada Whatsapp 08123456789 untuk mengaktifkan kembali.']));
+            }
         });
     }
 }
