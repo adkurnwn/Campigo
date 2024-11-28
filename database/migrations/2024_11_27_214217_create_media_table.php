@@ -30,6 +30,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['model_type', 'model_id']);
+            $table->unique('uuid');
+            $table->index('order_column');
         });
     }
 

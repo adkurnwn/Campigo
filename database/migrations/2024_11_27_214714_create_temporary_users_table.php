@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('otp');
             $table->timestamp('otp_expires_at');
             $table->timestamps();
+            $table->unique('email');
         });
     }
 
