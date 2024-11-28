@@ -1,9 +1,9 @@
 <template>
     <header
-        class="py-4 px-6 flex justify-between items-center sticky top-0 z-50 transition-colors duration-300"
+        class="py-4 px-6 flex justify-between items-center sticky top-0 z-[90] transition-colors duration-300"
         :class="{'bg-teal': isAtTop, 'bg-white bg-opacity-25 backdrop-filter backdrop-blur-lg': !isAtTop}">
         <router-link to="/" class="flex items-center gap-2">
-            <img :src="logoUrl" alt="Campigo Logo" class="h-8 w-auto" />
+            <img src="/storage/app/public/img/campigo.png" alt="Campigo Logo" class="h-8 w-auto" />
             <div class="text-2xl font-bold text-teal-600">
                 Campigo
             </div>
@@ -129,35 +129,121 @@
             </a>
         </div>
 
-        <!-- Mobile Menu Button -->
-        <button id="mobile-menu-button" class="lg:hidden" aria-label="Menu">
+        <!-- Updated Mobile Menu Button -->
+        <button @click="toggleMobileMenu" class="lg:hidden text-gray-700 focus:outline-none" aria-label="Menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
+
+        <!-- Updated Mobile Menu -->
+        <Transition
+            enter-active-class="transition-opacity duration-300"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-300"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="mobileMenuOpen" 
+                class="lg:hidden fixed inset-0 z-[150] bg-gray-600 bg-opacity-15 backdrop-filter backdrop-blur-sm touch-none"
+                @click="mobileMenuOpen = false">
+            </div>
+        </Transition>
+
+        <Transition
+            enter-active-class="transition-transform duration-300 ease-out"
+            enter-from-class="transform translate-x-full"
+            enter-to-class="transform translate-x-0"
+            leave-active-class="transition-transform duration-300 ease-in"
+            leave-from-class="transform translate-x-0"
+            leave-to-class="transform translate-x-full"
+        >
+            <div v-if="mobileMenuOpen" 
+                class="lg:hidden fixed right-0 top-0 z-[151] w-64 h-screen bg-gradient-to-b from-teal-100 via-green-100 to-blue-100 shadow-lg overflow-y-auto overscroll-contain">
+                <div class="p-4 border-b">
+                    <button @click="mobileMenuOpen = false" class="float-right text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-4 space-y-4">
+                    <router-link to="/" 
+                        class="block py-2 transition-colors"
+                        :class="{
+                            'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent font-semibold': $route.path === '/',
+                            'text-gray-700 hover:text-teal-600': $route.path !== '/'
+                        }"
+                        @click="mobileMenuOpen = false">
+                        Home
+                    </router-link>
+                    <router-link to="/products" 
+                        class="block py-2 transition-colors"
+                        :class="{
+                            'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent font-semibold': $route.path === '/products',
+                            'text-gray-700 hover:text-teal-600': $route.path !== '/products'
+                        }"
+                        @click="mobileMenuOpen = false">
+                        Products
+                    </router-link>
+                    <router-link to="/rules" 
+                        class="block py-2 transition-colors"
+                        :class="{
+                            'bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent font-semibold': $route.path === '/rules',
+                            'text-gray-700 hover:text-teal-600': $route.path !== '/rules'
+                        }"
+                        @click="mobileMenuOpen = false">
+                        Rules
+                    </router-link>
+
+                    <div class="border-t border-gray-200 my-2"></div>
+
+                    <!-- Cart Button Mobile -->
+                    <button @click="handleMobileCart" 
+                        class="flex items-center w-full py-2 text-gray-700 hover:text-teal-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.6 8M17 13l1.6 8M9 21h6" />
+                        </svg>
+                        Cart
+                        <span v-if="cartCount > 0" class="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1">{{ cartCount }}</span>
+                    </button>
+
+                    <!-- Auth Buttons Mobile -->
+                    <template v-if="isAuthenticated">
+                        <router-link to="/myrent" 
+                            class="flex items-center py-2 text-gray-700 hover:text-teal-600 transition-colors"
+                            @click="mobileMenuOpen = false">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            My Rentals
+                        </router-link>
+                        <router-link to="/profile" 
+                            class="flex items-center py-2 text-gray-700 hover:text-teal-600 transition-colors"
+                            @click="mobileMenuOpen = false">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Profile
+                        </router-link>
+                        <button @click="handleLogout" 
+                            class="flex items-center w-full py-2 text-red-600 hover:text-red-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Logout
+                        </button>
+                    </template>
+                    <a v-else href="/login" 
+                        class="block w-full py-2 text-center bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white rounded-full"
+                        @click="mobileMenuOpen = false">
+                        Login
+                    </a>
+                </div>
+            </div>
+        </Transition>
     </header>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="lg:hidden hidden bg-white py-4 px-10 text-gray-700 space-y-4">
-        <router-link to="/" class="block hover:text-black">Home</router-link>
-        <router-link to="/products" class="block hover:text-black">Products</router-link>
-        <router-link to="/contact" class="block hover:text-black">Contact</router-link>
-
-        <!-- Mobile Profile/Book Now Button -->
-        <div v-if="isAuthenticated" class="space-y-2">
-            <router-link to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                Profile
-            </router-link>
-            <button @click="handleLogout"
-                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                Logout
-            </button>
-        </div>
-        <a v-else href="/register"
-            class="block bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-gradient-to-l transition duration-300 ease-in-out transform hover:scale-105">
-            Login
-        </a>
-    </div>
 
     <!-- Replace the ModalComponent with CartModal -->
     <CartModal ref="cartModalRef" />
@@ -222,7 +308,7 @@ export default {
             showLogoutModal: false,
             cartCount: 0,
             isAtTop: true,
-            logoUrl: '/img/campigo.png' // Update path based on your public directory structure
+            //logoUrl: "/storage/app/public/img/herocampigo.png" // Update path based on your public directory structure
         }
     },
     setup() {
@@ -289,13 +375,31 @@ export default {
         handleScroll() {
             this.isAtTop = window.scrollY === 0;
         },
+        handleMobileCart() {
+            this.mobileMenuOpen = false;
+            this.toggleCart();
+        },
+    },
+    watch: {
+        mobileMenuOpen(isOpen) {
+            if (isOpen) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+            }
+        }
     },
     mounted() {
         document.addEventListener('click', this.handleClickOutside);
-        document.getElementById('mobile-menu-button').addEventListener('click', this.toggleMobileMenu);
         window.addEventListener('scroll', this.handleScroll);
     },
     beforeDestroy() {
+        // Make sure to restore scrolling when component is destroyed
+        document.body.style.overflow = 'auto';
         document.removeEventListener('click', this.handleClickOutside);
         window.removeEventListener('scroll', this.handleScroll);
     }

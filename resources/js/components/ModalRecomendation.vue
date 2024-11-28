@@ -23,9 +23,9 @@
 
         <ModalComponent :show="isOpen" @close="isOpen = false">
             <!-- Form View -->
-            <div v-if="currentView === 'form'" class="p-6 max-h-[85vh] overflow-y-auto">
+            <div v-if="currentView === 'form'" class="p-4 sm:p-6 max-h-[85vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-playfair font-bold text-gray-900 tracking-tight">Generate Rekomendasi</h2>
+                    <h2 class="text-xl sm:text-2xl font-playfair font-bold text-gray-900 tracking-tight">Generate Rekomendasi</h2>
                     <button @click="isOpen = false" class="text-gray-400 hover:text-gray-500">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -35,11 +35,11 @@
                 
                 <form @submit.prevent="handleSubmit" class="space-y-6">
                     <!-- Jumlah Orang -->
-                    <div class="flex items-center space-x-4">
-                        <label for="jumlahOrang" class="w-1/3 block text-lg font-playfair font-bold text-gray-900">
+                    <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <label for="jumlahOrang" class="sm:w-1/3 block text-base sm:text-lg font-playfair font-bold text-gray-900">
                             Jumlah Orang
                         </label>
-                        <div class="w-2/3 flex items-center">
+                        <div class="w-full sm:w-2/3 flex items-center">
                             <div class="inline-flex items-center border-2 border-teal-200 rounded-lg">
                                 <button type="button" 
                                     @click="decrementJumlahOrang"
@@ -66,14 +66,14 @@
                     </div>
 
                     <!-- Jenis Camping -->
-                    <div class="flex items-center space-x-4">
-                        <label for="jenisCamping" class="w-1/3 block text-lg font-playfair font-bold text-gray-900">
+                    <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <label for="jenisCamping" class="sm:w-1/3 block text-base sm:text-lg font-playfair font-bold text-gray-900">
                             Jenis Camping
                         </label>
                         <select
                             id="jenisCamping"
                             v-model="formData.jenisCamping"
-                            class="w-2/3 px-4 py-2 border-2 border-teal-200 rounded-lg text-gray-700 focus:outline-none focus:border-teal-600"
+                            class="w-full sm:w-2/3 px-4 py-2 border-2 border-teal-200 rounded-lg text-gray-700 focus:outline-none focus:border-teal-600"
                             required
                         >
                             <option value="" disabled>Pilih jenis camping</option>
@@ -84,11 +84,11 @@
                     </div>
 
                     <!-- Durasi Camping -->
-                    <div class="flex items-center space-x-4">
-                        <label for="durasi" class="w-1/3 block text-lg font-playfair font-bold text-gray-900">
+                    <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <label for="durasi" class="sm:w-1/3 block text-base sm:text-lg font-playfair font-bold text-gray-900">
                             Durasi Camping
                         </label>
-                        <div class="w-2/3 flex items-center">
+                        <div class="w-full sm:w-2/3 flex items-center">
                             <div class="inline-flex items-center border-2 border-teal-200 rounded-lg">
                                 <button type="button"
                                     @click="decrementDurasi"
@@ -125,11 +125,13 @@
 
             <!-- Recommendations View -->
             <div v-else-if="currentView === 'recommendations'" class="flex flex-col h-[85vh]">
-                <div class="p-6 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
+                <div class="p-4 sm:p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-start sm:items-center flex-col sm:flex-row space-y-2 sm:space-y-0">
                         <div>
-                            <h2 class="text-2xl font-playfair font-bold text-gray-900 tracking-tight">Rekomendasi Peralatan</h2>
-                            <p class="text-gray-600 mt-1">Berdasarkan {{ formData.jumlahOrang }} orang, {{ formData.durasi }} hari, {{ formData.jenisCamping }}</p>
+                            <h2 class="text-xl sm:text-2xl font-playfair font-bold text-gray-900 tracking-tight">Rekomendasi Peralatan</h2>
+                            <p class="text-sm sm:text-base text-gray-600 mt-1">
+                                Berdasarkan {{ formData.jumlahOrang }} orang, {{ formData.durasi }} hari, {{ formData.jenisCamping }}
+                            </p>
                         </div>
                         <div class="flex space-x-4">
                             <button @click="backToForm" class="text-teal-600 hover:text-teal-700">
@@ -146,17 +148,17 @@
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-6">
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6">
                     <div class="space-y-4">
                         <div v-for="item in recommendations" :key="item.id"
-                            class="flex items-center justify-between border-b border-gray-200 py-4">
+                            class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 py-4 space-y-3 sm:space-y-0">
                             <div class="flex items-center space-x-4">
-                                <img :src="`/storage/${item.image}`" :alt="item.nama" class="w-20 h-20 object-cover rounded-lg">
+                                <img :src="`/storage/${item.image}`" :alt="item.nama" class="w-16 sm:w-20 h-16 sm:h-20 object-cover rounded-lg">
                                 <div>
-                                    <div class="flex items-center space-x-3">
-                                        <h3 class="text-xl font-playfair font-bold text-gray-900">{{ item.nama }}</h3>
-                                        <span class="text-gray-300">|</span>
-                                        <p class="text-lg font-light italic text-gray-600">{{ item.merk }}</p>
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+                                        <h3 class="text-lg sm:text-xl font-playfair font-bold text-gray-900">{{ item.nama }}</h3>
+                                        <span class="hidden sm:block text-gray-300">|</span>
+                                        <p class="text-base sm:text-lg font-light italic text-gray-600">{{ item.merk }}</p>
                                     </div>
                                     <div class="flex items-center mt-2">
                                         <div class="inline-block bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-3 py-1">
@@ -169,7 +171,7 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center space-x-4">
+                            <div class="flex items-center justify-between sm:justify-end space-x-4">
                                 <div class="flex items-center border-2 border-teal-200 rounded-lg">
                                     <button 
                                         @click="updateItemQuantity(item.id, item.quantity - 1)"
@@ -200,7 +202,7 @@
                     </div>
                 </div>
 
-                <div class="p-6 border-t border-gray-200">
+                <div class="p-4 sm:p-6 border-t border-gray-200">
                     <div class="space-y-4">
                         <div class="inline-block bg-gradient-to-r from-teal-600/10 via-green-600/10 to-blue-600/10 rounded-lg px-4 py-2 w-full">
                             <p class="text-2xl font-semibold text-teal-600">

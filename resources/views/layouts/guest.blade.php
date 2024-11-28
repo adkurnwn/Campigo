@@ -20,8 +20,8 @@
         <!-- Background image container -->
         <div class="absolute inset-0 z-0" style="background-image: url('{{ asset('storage/img/bg3.jpg') }}'); background-size: cover; background-position: center; opacity: 0.5;"></div>
         
-        <!-- Logo moved to top-left -->
-        <div class="z-20 absolute top-5 left-5 flex items-center">
+        <!-- Logo container with responsive positioning -->
+        <div class="z-20 absolute md:top-5 md:left-5 top-10 left-1/2 transform -translate-x-1/2 md:transform-none flex items-center">
             <x-nav-link :href="route('home')">
                 <img src="{{ asset('storage/img/campigo.png') }}" alt="Campigo Logo" class="h-12 w-auto" />
             </x-nav-link>
