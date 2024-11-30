@@ -17,6 +17,7 @@ Route::get('/forgot-password', function () {
 
 require __DIR__.'/api.php';
 require __DIR__.'/auth.php';
+require __DIR__.'/web2.php';
 
 
 // Move catch-all route to the end after all requires
