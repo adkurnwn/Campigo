@@ -80,9 +80,9 @@ class TransaksiSewa extends Model
                 $q->whereDate('tgl_kembali', '<', now())
                     ->orWhere(function($q2) {
                         $q2->whereDate('tgl_kembali', '=', now())
-                            ->whereTime('tgl_kembali', '<=', '22:00:00');
+                            ->whereRaw('TIME(NOW()) > ?', ['22:00:00']);
                     });
-            });
+           });
     }
 
     public function calculateLatePenalty()

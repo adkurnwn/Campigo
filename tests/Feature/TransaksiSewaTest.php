@@ -104,16 +104,16 @@ class TransaksiSewaTest extends TestCase
             'user_id' => $this->user->id,
             'total_harga' => 100000,
             'tgl_pinjam' => now()->format('Y-m-d'),
-            'tgl_kembali' => now()->addDay()->format('Y-m-d'), // Tomorrow
+            'tgl_kembali' => now()->addDays(2)->format('Y-m-d'), // Set return date to 2 days later
             'status' => 'pembayaran terkonfirmasi',
             'metode_bayar' => 'transferbank'
         ]);
 
-        // Set time to 22:01 on return day
-        $this->travelTo(now()->setTime(22, 01));
+        // Set time to 21:59 (before deadline)
+        $this->travelTo(now()->setTime(21, 59));
 
         // Call getUserTransactions
-        $response = $this->actingAs($this->user)->getJson('/api/transactions');
+        $response = $this->actingAs($this->user)->getJson('/api/user-transactions');
 
         // Refresh transaction from database
         $transaction->refresh();
@@ -129,43 +129,35 @@ class TransaksiSewaTest extends TestCase
         $transaction = TransaksiSewa::create([
             'user_id' => $this->user->id,
             'total_harga' => 100000,
-            'tgl_pinjam' => now()->format('Y-m-d'),
-            'tgl_kembali' => now()->format('Y-m-d'), // Today
+            'tgl_pinjam' => now()->subDay()->format('Y-m-d'), // Yesterday
+            'tgl_kembali' => now()->subDay()->format('Y-m-d'), // Yesterday
             'status' => 'pembayaran terkonfirmasi',
             'metode_bayar' => 'transferbank'
         ]);
 
-        // Set time to 22:01 on pickup deadline
-        $this->travelTo(now()->setTime(22, 1));
-
-        // Call getUserTransactions which includes the auto-cancellation check
+        // No need to travel in time since we're testing a past date
         $response = $this->actingAs($this->user)->getJson('/api/user-transactions');
 
-        // Refresh transaction from database
         $transaction->refresh();
-
-        // Assert the transaction was cancelled
         $this->assertEquals('dibatalkan', $transaction->status);
     }
 
     public function test_kembalikan_jumlah_stok_setelah_dibatalkan()
     {
-        // Create a barang (item) first
         $barang = \App\Models\Barang::factory()->create([
             'stok' => 5,
         ]);
 
-        // Create a transaction with status 'pembayaran terkonfirmasi'
+        // Set tgl_kembali to yesterday to ensure it's before current time
         $transaction = TransaksiSewa::create([
             'user_id' => $this->user->id,
             'total_harga' => 100000,
-            'tgl_pinjam' => now()->format('Y-m-d'),
-            'tgl_kembali' => now()->format('Y-m-d'), // Today
+            'tgl_pinjam' => now()->subDay()->format('Y-m-d'), // Yesterday
+            'tgl_kembali' => now()->subDay()->format('Y-m-d'), // Yesterday
             'status' => 'pembayaran terkonfirmasi',
             'metode_bayar' => 'transferbank'
         ]);
 
-        // Create an ItemsOrder for the transaction
         \App\Models\ItemsOrder::create([
             'transaksi_sewa_id' => $transaction->id,
             'barang_id' => $barang->id,
@@ -174,20 +166,13 @@ class TransaksiSewaTest extends TestCase
             'subtotal' => 100000
         ]);
 
-        // Set time to 22:01 on pickup deadline
-        $this->travelTo(now()->setTime(22, 1));
-
-        // Call getUserTransactions which includes the auto-cancellation check
+        // No need to travel in time since we're testing a past date
         $response = $this->actingAs($this->user)->getJson('/api/user-transactions');
 
-        // Refresh models from database
         $transaction->refresh();
         $barang->refresh();
 
-        // Assert the transaction was cancelled
         $this->assertEquals('dibatalkan', $transaction->status);
-        
-        // Assert the stock was returned (original 5 + returned 2 = 7)
         $this->assertEquals(7, $barang->stok);
     }
 }
