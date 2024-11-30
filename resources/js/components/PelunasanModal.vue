@@ -104,7 +104,7 @@ const submitPelunasan = async () => {
                         <select v-model="selectedPaymentMethod"
                             class="w-full border-2 border-gray-200 rounded-lg p-3 focus:border-teal-600 focus:outline-none">
                             <option value="" disabled>Pilih metode pembayaran</option>
-                            <option value="tunai">Tunai</option>
+                            <option value="tunai" disabled>Tunai</option>
                             <option value="transferbank">Transfer Bank</option>
                         </select>
                     </div>

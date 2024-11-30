@@ -91,7 +91,9 @@ export default {
                     rules: [
                         'Penyewa wajib membayar uang muka (DP) sebesar 50% dari total biaya sewa pada saat melakukan pemesanan.',
                         'Sisa pembayaran dilakukan saat pengembalian barang, bersamaan dengan pembayaran denda jika terdapat kerusakan atau kehilangan.',
-                        'Pembayaran yang saat ini dilayani adalah transfer bank dan pembayaran tunai.'
+                        'Pembayaran yang saat ini dilayani adalah transfer bank dan pembayaran tunai.',
+                        'Setelah pembayaran DP terkonfirmasi, penyewa harus segera mengambil barang yang disewa.',
+                        'Jika penyewa tidak mengambil barang sampai melewati jadwal kembali, maka DP dianggap hangus dan penyewaan dianggap batal.'
                     ]
                 },
                 {

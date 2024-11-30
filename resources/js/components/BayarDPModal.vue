@@ -117,7 +117,7 @@ const submitOrder = async () => {
                         <select v-model="selectedPaymentMethod"
                             class="w-full bg-white rounded-lg p-3 border-2 border-transparent focus:border-teal-600 focus:outline-none transition-all duration-300">
                             <option value="" disabled>Pilih metode pembayaran</option>
-                            <option value="tunai">Tunai</option>
+                            <option value="tunai" disabled>Tunai</option>
                             <option value="transferbank">Transfer Bank</option>
                             <option value="ewallet" disabled>E-Wallet (belum tersedia)</option>
                             <option value="qris" disabled>QRIS (belum tersedia)</option>
