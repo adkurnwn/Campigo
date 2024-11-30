@@ -26,14 +26,12 @@ const routes = [
     {
         path: '/profile',
         name: 'profile',
-        component: Profile,
-        meta: { requiresAuth: true }
+        component: Profile
     },
     {
         path: '/myrent',
         name: 'sewa',
-        component: Sewa,
-        meta: { requiresAuth: true }
+        component: Sewa
     },
     {
         path: '/:pathMatch(.*)*',
@@ -47,21 +45,5 @@ const router = createRouter({
     routes
 })
 
-// Add navigation guard
-router.beforeEach(async (to, from, next) => {
-    // Check if route requires auth
-    if (to.meta.requiresAuth) {
-        // Call your auth check API endpoint
-        const response = await fetch('/api/auth-status')
-        const data = await response.json()
-        
-        if (!data.authenticated) {
-            // Redirect to login if not authenticated
-            next('/login')
-            return
-        }
-    }
-    next()
-})
 
 export default router

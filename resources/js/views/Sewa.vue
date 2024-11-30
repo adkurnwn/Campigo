@@ -391,17 +391,27 @@ export default {
             immediate: true
         }
     },
-    created() {
-        this.fetchTransactions();
-        this.fetchServerTime();
-        // Start countdown timer
-        this.countdownInterval = setInterval(() => {
-            this.$forceUpdate(); // Force update to refresh countdown
-        }, 1000);
-        // Update server time every minute
-        this.timeCheckInterval = setInterval(() => {
-            this.fetchServerTime();
-        }, 60000); // every minute
+    async created() {
+        try {
+            const authResponse = await axios.get('/api/auth-status')
+            if (!authResponse.data.authenticated) {
+                window.location.href = '/login'
+                return
+            }
+            this.fetchTransactions()
+            this.fetchServerTime()
+            // Start countdown timer
+            this.countdownInterval = setInterval(() => {
+                this.$forceUpdate()
+            }, 1000)
+            // Update server time every minute
+            this.timeCheckInterval = setInterval(() => {
+                this.fetchServerTime()
+            }, 60000)
+        } catch (error) {
+            console.error('Error checking auth status:', error)
+            window.location.href = '/login'
+        }
     },
     beforeDestroy() {
         // Clear interval when component is destroyed

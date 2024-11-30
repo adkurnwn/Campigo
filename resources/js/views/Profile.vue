@@ -28,6 +28,7 @@
 import UpdateProfileInformation from '../components/UpdateProfileInformation.vue'
 import UpdatePassword from '../components/UpdatePassword.vue'
 import DeleteUserForm from '../components/DeleteUserForm.vue'
+import axios from 'axios'
 
 export default {
   name: 'Profile',
@@ -35,6 +36,17 @@ export default {
     UpdateProfileInformation,
     UpdatePassword,
     DeleteUserForm
+  },
+  async created() {
+    try {
+      const response = await axios.get('/api/auth-status')
+      if (!response.data.authenticated) {
+        window.location.href = '/login'
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error)
+      window.location.href = '/login'
+    }
   }
 }
 </script>
