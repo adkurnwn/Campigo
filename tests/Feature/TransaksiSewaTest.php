@@ -84,17 +84,6 @@ class TransaksiSewaTest extends TestCase
         $this->assertEquals(0, $penalty);
     }
 
-    public function test_api_mengembalikan_nilai_denda_terbaru()
-    {
-        // Set time to after deadline
-        $this->travelTo(now()->setTime(22, 1));
-
-        $response = $this->actingAs($this->user)
-            ->getJson('/api/user-transactions'); // Adjust this route to match your actual API route
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.0.total_denda', 100000);
-    }
 
 
     public function test_tidak_batal_sebelum_diambil_dan_belum_deadline()

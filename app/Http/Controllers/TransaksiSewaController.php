@@ -157,8 +157,9 @@ class TransaksiSewaController extends Controller
             // Add reminder check here
             $this->sendReturnReminders();
             
-            // Cancel expired transactions and update penalties
+            // Handle cancellations and penalties separately
             $this->cancelExpiredTransactions();
+            $this->cancelShouldBeCancelledTransactions();
             $this->updateLatePenalties();
 
             // Rest of the method remains the same
@@ -255,9 +256,8 @@ class TransaksiSewaController extends Controller
         TransaksiSewa::expiredUnpaid()->update(['status' => 'dibatalkan']);
     }
 
-    private function updateLatePenalties()
+    private function cancelShouldBeCancelledTransactions()
     {
-        // Get transactions that should be cancelled before updating them
         $transactionsToCancel = TransaksiSewa::shouldBeCancelled()->with('itemsOrders.barang')->get();
         
         foreach ($transactionsToCancel as $transaction) {
@@ -270,8 +270,11 @@ class TransaksiSewaController extends Controller
                 $barang->increment('stok', $itemOrder->quantity);
             }
         }
+    }
 
-        // Update penalties for late returns
+    private function updateLatePenalties()
+    {
+        // Only update penalties for late returns
         $lateTransactions = TransaksiSewa::lateReturns()->get();
         foreach ($lateTransactions as $transaction) {
             $penalty = $transaction->calculateLatePenalty();
