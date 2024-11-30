@@ -93,14 +93,23 @@ class TransaksiSewa extends Model
 
         $now = now();
         $returnDate = \Carbon\Carbon::parse($this->tgl_kembali);
+        $startDate = \Carbon\Carbon::parse($this->tgl_pinjam);
         
+        // If late return on the same day after 22:00
         if ($returnDate->isSameDay($now) && $now->format('H:i:s') > '22:00:00') {
             return $this->total_harga;
         }
 
+        // Calculate rental duration (inclusive)
+        $rentalDuration = $startDate->diffInDays($returnDate) + 1;
+        
+        // Calculate daily rate
+        $dailyRate = $this->total_harga / $rentalDuration;
+        
+        // Calculate days late
         $daysLate = $returnDate->endOfDay()->lt($now) ? 
             $returnDate->startOfDay()->diffInDays($now->startOfDay()) : 0;
             
-        return $daysLate * $this->total_harga;
+        return $daysLate * $dailyRate;
     }
 }
