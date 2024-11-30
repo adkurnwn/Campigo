@@ -1,4 +1,3 @@
-
 <x-guest-layout>
     <div class="bg-white h-full flex flex-col">
         <!-- Back button -->
@@ -34,9 +33,11 @@
                             @for($i = 1; $i <= 6; $i++)
                             <input type="text" 
                                    maxlength="1"
+                                   autocomplete="off"
                                    class="w-12 h-12 text-center text-2xl font-bold border-2 rounded-lg border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
                                    oninput="moveToNext(this, {{ $i }})"
                                    onkeypress="return onlyNumbers(event)"
+                                   onpaste="handlePaste(event)"
                                    data-position="{{ $i }}"
                                    required>
                             @endfor
@@ -82,6 +83,22 @@
                     if (nextField) nextField.focus();
                 }
             }
+        }
+
+        function handlePaste(event) {
+            event.preventDefault();
+            const pastedText = (event.clipboardData || window.clipboardData).getData('text');
+            const numbers = pastedText.replace(/\D/g, '').split('').slice(0, 6);
+            
+            const inputs = document.querySelectorAll('input[data-position]');
+            inputs.forEach((input, index) => {
+                if (numbers[index]) {
+                    input.value = numbers[index];
+                    if (index === 5) {
+                        input.focus();
+                    }
+                }
+            });
         }
 
         function onlyNumbers(event) {
