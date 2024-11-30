@@ -73,6 +73,18 @@ class TransaksiSewa extends Model
             ->where('reminded', false);
     }
 
+    public function scopeShouldBeCancelled($query)
+    {
+        return $query->where('status', 'pembayaran terkonfirmasi')
+            ->where(function($q) {
+                $q->whereDate('tgl_kembali', '<', now())
+                    ->orWhere(function($q2) {
+                        $q2->whereDate('tgl_kembali', '=', now())
+                            ->whereTime('tgl_kembali', '<=', '22:00:00');
+                    });
+            });
+    }
+
     public function calculateLatePenalty()
     {
         if ($this->status !== 'berlangsung') {
@@ -82,16 +94,13 @@ class TransaksiSewa extends Model
         $now = now();
         $returnDate = \Carbon\Carbon::parse($this->tgl_kembali);
         
-        // If it's not past 22:00 today, no penalty
-        if ($now->format('Y-m-d') === $returnDate->format('Y-m-d') && $now->format('H:i:s') <= '22:00:00') {
-            return 0;
+        if ($returnDate->isSameDay($now) && $now->format('H:i:s') > '22:00:00') {
+            return $this->total_harga;
         }
 
-        // Calculate days late
-        $daysLate = $returnDate->startOfDay()->diffInDays($now->startOfDay());
-        if ($daysLate <= 0) return 0;
-
-        // Return penalty amount (one day's rental fee per day late)
-        return $this->total_harga * $daysLate;
+        $daysLate = $returnDate->endOfDay()->lt($now) ? 
+            $returnDate->startOfDay()->diffInDays($now->startOfDay()) : 0;
+            
+        return $daysLate * $this->total_harga;
     }
 }

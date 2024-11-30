@@ -25,7 +25,6 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('verify.otp.form', ['email' => 'test@example.com'], absolute: false));
     }
 }

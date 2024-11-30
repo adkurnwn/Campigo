@@ -153,6 +153,7 @@ class TransaksiSewaController extends Controller
     public function getUserTransactions()
     {
         try {
+            
             // Add reminder check here
             $this->sendReturnReminders();
             
@@ -221,7 +222,7 @@ class TransaksiSewaController extends Controller
                 'pending',
                 'pembayaran terkonfirmasi',
                 'berlangsung',
-                'diperiksa',    // Add this new status
+                'diperiksa',
                 'selesai',
                 'dibatalkan'
             ];
@@ -256,8 +257,22 @@ class TransaksiSewaController extends Controller
 
     private function updateLatePenalties()
     {
-        $lateTransactions = TransaksiSewa::lateReturns()->get();
+        // Get transactions that should be cancelled before updating them
+        $transactionsToCancel = TransaksiSewa::shouldBeCancelled()->with('itemsOrders.barang')->get();
         
+        foreach ($transactionsToCancel as $transaction) {
+            // Update the transaction status
+            $transaction->update(['status' => 'dibatalkan']);
+            
+            // Return items to stock
+            foreach ($transaction->itemsOrders as $itemOrder) {
+                $barang = $itemOrder->barang;
+                $barang->increment('stok', $itemOrder->quantity);
+            }
+        }
+
+        // Update penalties for late returns
+        $lateTransactions = TransaksiSewa::lateReturns()->get();
         foreach ($lateTransactions as $transaction) {
             $penalty = $transaction->calculateLatePenalty();
             $transaction->update(['total_denda' => $penalty]);
@@ -273,4 +288,6 @@ class TransaksiSewaController extends Controller
             $transaction->update(['reminded' => true]);
         }
     }
+
+    
 }
