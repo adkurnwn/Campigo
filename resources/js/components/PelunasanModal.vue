@@ -83,7 +83,7 @@ const submitPelunasan = async () => {
 </script>
 
 <template>
-    <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto">
+    <div v-if="show" class="fixed inset-0 z-[9999] overflow-y-auto">
         <div class="flex min-h-screen items-center justify-center px-4">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
