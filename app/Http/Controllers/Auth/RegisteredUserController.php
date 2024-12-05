@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\TemporaryUser;
 use App\Notifications\VerifyEmailOtp;
+use App\Rules\Captcha;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Notification;
@@ -30,6 +31,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
+            'g-recaptcha-response' => ['required', new Captcha()],
         ]);
 
         // Delete any existing temporary registration for this email
