@@ -155,7 +155,7 @@ class TransaksiSewaResource extends Resource
                     ))
                     ->modalSubmitAction(false)
                     ->modalCancelAction(false)
-                    ->visible(fn (TransaksiSewa $record) => $record->status === 'berlangsung' && $record->jaminanKtp)
+                    ->visible(fn (TransaksiSewa $record) => ($record->status === 'berlangsung' || $record->status === 'pelunasan' || $record->status === 'diperiksa' || $record->status === 'pelunasan diperiksa') && $record->jaminanKtp)
                     ->color('info'),
 
                 Action::make('approve_pelunasan')
