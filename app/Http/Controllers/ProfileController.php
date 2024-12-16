@@ -30,6 +30,10 @@ class ProfileController extends Controller
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+                'alamat' => ['required', 'string', 'max:255'],
+                'NIK' => ['required', 'string', 'max:16'],
+                'no_hp' => ['required', 'string', 'max:15'],
+                'tanggal_lahir' => ['required', 'date'],
             ]);
 
             $user->fill($validated);

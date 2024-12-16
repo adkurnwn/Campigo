@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('alamat')->nullable();
+            $table->string('NIK')->nullable();
+            $table->string('no_hp')->nullable();
+            $table->date('tanggal_lahir')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->enum('statususer', ['active', 'nonactive', 'banned'])->default('active');

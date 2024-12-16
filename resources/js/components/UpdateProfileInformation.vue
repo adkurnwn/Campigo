@@ -52,6 +52,55 @@
           />
           <span v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email[0] }}</span>
         </div>
+
+        <div>
+          <label for="alamat" class="block text-gray-700 font-medium mb-2">Alamat</label>
+          <input
+            id="alamat"
+            v-model="form.alamat"
+            type="text"
+            class="w-full px-4 py-3 rounded-lg border-2 border-teal-100 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+            required
+          />
+          <span v-if="errors.alamat" class="mt-1 text-sm text-red-600">{{ errors.alamat[0] }}</span>
+        </div>
+
+        <div>
+          <label for="NIK" class="block text-gray-700 font-medium mb-2">NIK</label>
+          <input
+            id="NIK"
+            v-model="form.NIK"
+            type="text"
+            maxlength="16"
+            class="w-full px-4 py-3 rounded-lg border-2 border-teal-100 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+            required
+          />
+          <span v-if="errors.NIK" class="mt-1 text-sm text-red-600">{{ errors.NIK[0] }}</span>
+        </div>
+
+        <div>
+          <label for="no_hp" class="block text-gray-700 font-medium mb-2">Nomor HP</label>
+          <input
+            id="no_hp"
+            v-model="form.no_hp"
+            type="text"
+            class="w-full px-4 py-3 rounded-lg border-2 border-teal-100 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+            required
+          />
+          <span v-if="errors.no_hp" class="mt-1 text-sm text-red-600">{{ errors.no_hp[0] }}</span>
+        </div>
+
+        <div>
+          <label for="tanggal_lahir" class="block text-gray-700 font-medium mb-2">Tanggal Lahir</label>
+          <input
+            id="tanggal_lahir"
+            v-model="form.tanggal_lahir"
+            type="date"
+            class="w-full px-4 py-3 rounded-lg border-2 border-teal-100 focus:border-teal-300 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+            required
+          />
+          <span v-if="errors.tanggal_lahir" class="mt-1 text-sm text-red-600">{{ errors.tanggal_lahir[0] }}</span>
+        </div>
       </div>
 
       <div class="flex items-center justify-start pt-4">
@@ -77,7 +126,11 @@ export default {
     return {
       form: {
         name: '',
-        email: ''
+        email: '',
+        alamat: '',
+        NIK: '',
+        no_hp: '',
+        tanggal_lahir: ''
       },
       errors: {},
       status: '',
@@ -90,6 +143,10 @@ export default {
         const response = await axios.get('/api/user');
         this.form.name = response.data.name;
         this.form.email = response.data.email;
+        this.form.alamat = response.data.alamat;
+        this.form.NIK = response.data.NIK;
+        this.form.no_hp = response.data.no_hp;
+        this.form.tanggal_lahir = response.data.tanggal_lahir;
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
@@ -107,6 +164,10 @@ export default {
         // Update the form with the returned data
         this.form.name = response.data.user.name;
         this.form.email = response.data.user.email;
+        this.form.alamat = response.data.user.alamat;
+        this.form.NIK = response.data.user.NIK;
+        this.form.no_hp = response.data.user.no_hp;
+        this.form.tanggal_lahir = response.data.user.tanggal_lahir;
         
         setTimeout(() => {
           this.status = '';
