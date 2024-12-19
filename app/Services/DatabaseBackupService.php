@@ -4,6 +4,8 @@ namespace App\Services;
 
 use PDO;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class DatabaseBackupService
 {
@@ -57,10 +59,26 @@ class DatabaseBackupService
             
             file_put_contents($outputPath, $output);
 
+            // After successful backup, send email
+            $this->sendBackupEmail($outputPath, $filename);
+
             return $filename;
         } catch (\Exception $e) {
-            \Log::error('Database backup error: ' . $e->getMessage());
+            Log::error('Database backup error: ' . $e->getMessage());
             throw new \Exception('Database backup failed: ' . $e->getMessage());
         }
+    }
+
+    private function sendBackupEmail(string $filePath, string $filename): void
+    {
+        /* $emailTo = config('mail.from.address');
+        
+        Mail::raw('File Backup Database', function($message) use ($filePath, $filename, $emailTo) {
+            $message->to($emailTo)
+                   ->subject('Database Backup - ' . date('Y-m-d H:i:s'))
+                   ->attach($filePath, [
+                       'as' => $filename
+                   ]);
+        }); */
     }
 }
