@@ -21,6 +21,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Pages\BackupPage;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -43,6 +44,9 @@ class AdminPanelProvider extends PanelProvider
             ->favicon('favicon.png')
             ->colors([
                 'primary' => Color::hex('#0d9488'),
+            ])
+            ->pages([
+                BackupPage::class
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
