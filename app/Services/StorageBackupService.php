@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 class StorageBackupService
 {
     private ?ZipArchive $zip = null;
+    private const DEFAULT_DIR_PERMISSION = 0755;
+    private const DEFAULT_FILE_PERMISSION = 0644;
 
     public function generateBackup(): string
     {
@@ -18,14 +20,10 @@ class StorageBackupService
             $filename = 'storage-backup-' . date('Y-m-d-H-i-s') . '.zip';
             $outputPath = $backupDir . DIRECTORY_SEPARATOR . $filename;
 
-            // Create backup directory with proper Windows permissions
+            // Create backup directory with cross-platform permissions
             if (!file_exists($backupDir)) {
-                if (!mkdir($backupDir, 0777, true)) {
+                if (!mkdir($backupDir, self::DEFAULT_DIR_PERMISSION, true)) {
                     throw new \Exception('Unable to create backup directory');
-                }
-                // Windows-specific: Make directory writable for IIS/Apache
-                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                    exec('icacls "' . $backupDir . '" /grant "Everyone":(OI)(CI)F /T');
                 }
             }
 
@@ -49,9 +47,9 @@ class StorageBackupService
             // Close ZIP file
             $this->zip->close();
 
-            // Windows-specific: Make file readable/writable
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                exec('icacls "' . $outputPath . '" /grant "Everyone":F');
+            // Set proper file permissions for the zip file
+            if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+                chmod($outputPath, self::DEFAULT_FILE_PERMISSION);
             }
 
             if (!file_exists($outputPath)) {
