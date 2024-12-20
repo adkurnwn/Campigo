@@ -71,7 +71,7 @@ class DatabaseBackupService
 
     private function sendBackupEmail(string $filePath, string $filename): void
     {
-        /* $emailTo = config('mail.from.address');
+        $emailTo = config('mail.from.address');
         
         Mail::raw('File Backup Database', function($message) use ($filePath, $filename, $emailTo) {
             $message->to($emailTo)
@@ -79,6 +79,6 @@ class DatabaseBackupService
                    ->attach($filePath, [
                        'as' => $filename
                    ]);
-        }); */
+        });
     }
 }

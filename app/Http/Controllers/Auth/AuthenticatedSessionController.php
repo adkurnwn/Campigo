@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -23,20 +24,19 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate(); // This handles the actual authentication logic
+    {
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $user = Auth::user();
+            $token = JWTAuth::fromUser($user);
+            $cookie = cookie('jwt_token', $token, 60);
 
-    $request->session()->regenerate();
+            return redirect('/')->withCookie($cookie);
+        }
 
-    // Role-based redirection after login
-    if (Auth::user()->role === 'admin') {
-        return redirect()->intended('/admin');
-    } elseif (Auth::user()->role === 'user') {
-        return redirect()->intended('/');
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
-
-    return redirect()->intended('/'); // Fallback
-}
 
     /**
      * Destroy an authenticated session.
@@ -44,11 +44,10 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
+        JWTAuth::invalidate(JWTAuth::getToken());
+        
+        $cookie = cookie()->forget('jwt_token');
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+        return redirect('/')->withCookie($cookie);
     }
 }
