@@ -81,4 +81,40 @@ class DatabaseBackupService
                    ]);
         });
     }
+
+    public function restoreFromBackup(string $backupPath): void
+    {
+        try {
+            $database = Config::get('database.connections.mysql.database');
+            $username = Config::get('database.connections.mysql.username');
+            $password = Config::get('database.connections.mysql.password');
+            $host = Config::get('database.connections.mysql.host');
+
+            $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+            $sql = file_get_contents($backupPath);
+            
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+            $pdo->exec($sql);
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+
+        } catch (\Exception $e) {
+            Log::error('Database restore error: ' . $e->getMessage());
+            throw new \Exception('Database restore failed: ' . $e->getMessage());
+        }
+    }
+
+    public function getLatestBackup(): ?string
+    {
+        $backupPath = storage_path('app/backup');
+        if (!file_exists($backupPath)) {
+            return null;
+        }
+
+        $files = glob($backupPath . '/*.sql');
+        if (empty($files)) {
+            return null;
+        }
+
+        return end($files);
+    }
 }

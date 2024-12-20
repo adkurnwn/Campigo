@@ -70,6 +70,65 @@ class BackupPage extends Page
                             ->danger()
                             ->send();
                     }
+                }),
+
+            Action::make('restore_latest_backup')
+                ->label('Restore Latest Backup')
+                ->icon('heroicon-o-arrow-path')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->action(function () {
+                    try {
+                        $backupService = new DatabaseBackupService();
+                        $latestBackup = $backupService->getLatestBackup();
+                        
+                        if (!$latestBackup) {
+                            throw new \Exception('No backup file found');
+                        }
+
+                        $backupService->restoreFromBackup($latestBackup);
+                        
+                        Notification::make()
+                            ->title('Database restored successfully')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Restore failed')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
+                }),
+
+            Action::make('restore_from_upload')
+                ->label('Restore From File')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->form([
+                    \Filament\Forms\Components\FileUpload::make('backup_file')
+                        ->acceptedFileTypes(['application/sql', '.sql'])
+                        ->required()
+                ])
+                ->action(function (array $data) {
+                    try {
+                        $backupService = new DatabaseBackupService();
+                        $path = storage_path('app/public/' . $data['backup_file']);
+                        
+                        $backupService->restoreFromBackup($path);
+                        
+                        Notification::make()
+                            ->title('Database restored successfully')
+                            ->success()
+                            ->send();
+                    } catch (\Exception $e) {
+                        Notification::make()
+                            ->title('Restore failed')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    }
                 })
         ];
     }
