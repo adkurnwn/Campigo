@@ -9,7 +9,7 @@
                     <!-- Brand Column -->
                     <div class="space-y-4">
                         <router-link to="/" class="flex items-center gap-2">
-                            <img src="/storage/app/public/img/campigo.png" alt="Campigo Logo" class="h-8 w-auto" />
+                            <img :src="logoUrl" alt="Campigo Logo" class="h-8 w-auto" />
                             <div class="text-2xl font-bold bg-gradient-to-r from-teal-600 via-green-600 to-blue-600 bg-clip-text text-transparent">
                                 Campigo
                             </div>
@@ -63,8 +63,15 @@
 </template>
 
 <script>
+import campigoLogo from '../../assets/img/campigo.png';
+
 export default {
     name: 'Footer',
+    data() {
+        return {
+            logoUrl: campigoLogo
+        }
+    },
     computed: {
         currentYear() {
             return new Date().getFullYear()

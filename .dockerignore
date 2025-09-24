@@ -1,0 +1,49 @@
+# Docker ignore file for Laravel CMS Desa project
+
+# Laravel
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+
+# IDEs
+.idea
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+bootstrap/cache/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+
+# Testing
+coverage/
+
+# Build files
+/public/build
+
+# Development files
+.env.local
+.env.development
+.env.test
+
+# Docker volumes
+mysql_data/
+redis_data/

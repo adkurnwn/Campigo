@@ -5,7 +5,7 @@
             <!-- Background image with fade effects -->
             <div class="absolute inset-0 z-0 top-20">
                 <div class="absolute inset-0 bg-gradient-to-b from-transparent to-transparent h-96"></div>
-                <img src="/storage/app/public/img/bg-home.jpg" class="w-full h-full object-cover opacity-20" alt="background">
+                <img :src="bgHomeUrl" class="w-full h-full object-cover opacity-20" alt="background">
             </div>
             
             <!-- Content with relative positioning -->
@@ -22,6 +22,7 @@
 import Hero from '../components/Hero.vue';
 import PopularProducts from '../components/PopularProducts.vue';
 import WhyChooseUs from '../components/WhyChooseUs.vue';
+import bgHomeImage from '../../assets/img/bg-home.jpg';
 
 export default {
     name: 'Home',
@@ -29,6 +30,11 @@ export default {
         Hero,
         PopularProducts,
         WhyChooseUs,
+    },
+    data() {
+        return {
+            bgHomeUrl: bgHomeImage
+        }
     }
 }
 </script>

@@ -1,0 +1,147 @@
+name: Build and Deploy Campigo
+
+on:
+  push:
+    branches: 
+      - dev/actions
+    workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: adkurnwn/campigo
+  IMAGE_TAG: dev-actions-${{ github.sha }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  DEV_DEPLOY_SERVER: ${{ secrets.DEV_DEPLOY_SERVER }}
+  DEV_DEPLOY_USER: ${{ secrets.DEV_DEPLOY_USER }}
+  DEV_SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+  DEV_DEPLOY_PORT: ${{ secrets.DEV_DEPLOY_PORT }}
+  DEV_DEPLOY_PATH: ${{ secrets.DEV_DEPLOY_PATH }}
+  
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
+          
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: ${{ env.IMAGE_TAG }}
+            
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.DEV_DEPLOY_SERVER }}
+          username: ${{ env.DEV_DEPLOY_USER }}
+          key: ${{ env.DEV_SSH_PRIVATE_KEY }}
+          port: ${{ env.DEV_DEPLOY_PORT }}
+          script: |
+            # Set deployment variables
+            export DEPLOY_PATH="${{ env.DEV_DEPLOY_PATH }}"
+            export IMAGE_TAG="${{ env.IMAGE_TAG }}"
+            
+            # Create deployment directory if it doesn't exist
+            mkdir -p "$DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+            
+            # Download docker-compose.prod.yml if it doesn't exist
+            if [ ! -f "docker-compose.prod.yml" ]; then
+              echo "📥 Downloading docker-compose.prod.yml..."
+              curl -L -o docker-compose.prod.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.prod.yml
+            fi
+            
+            # Download environment file example if .env doesn't exist
+            if [ ! -f ".env" ]; then
+              echo "📥 Downloading environment template..."
+              curl -L -o .env.example https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/.env.example
+              echo "⚠️  Please configure .env file before running deployment!"
+              echo "   cp .env.example .env"
+              echo "   nano .env"
+              exit 1
+            fi
+            
+            # Load environment variables
+            set -a
+            source .env
+            set +a
+            
+            # Create backup directory
+            mkdir -p ./backups
+            
+            # Pull latest images
+            echo "📦 Pulling latest Docker images..."
+            docker-compose -f docker-compose.prod.yml pull
+            
+            # Stop services gracefully
+            echo "🛑 Stopping current services..."
+            docker-compose -f docker-compose.prod.yml down --timeout 30
+            
+            # Start services
+            echo "🚀 Starting services..."
+            docker-compose -f docker-compose.prod.yml up -d
+            
+            # Wait for services to be healthy
+            echo "⏳ Waiting for services to become healthy..."
+            timeout 300 bash -c '
+              while true; do
+                if docker-compose -f docker-compose.prod.yml ps | grep -q "Up.*healthy"; then
+                  echo "✅ Services are healthy"
+                  break
+                fi
+                echo "Waiting for services to be healthy..."
+                sleep 5
+              done
+            '
+            
+            # Verify deployment
+            echo "🔍 Verifying deployment..."
+            docker-compose -f docker-compose.prod.yml ps
+            
+            # Clean up old images
+            echo "🧹 Cleaning up old Docker images..."
+            docker image prune -f
+            
+            echo "✅ Deployment completed successfully!"
+            
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Deployment successful!"
+            echo "🌍 Application should be available at your configured domain"
+          else
+            echo "❌ Deployment failed!"
+            echo "📋 Check the deployment logs for details"
+          fi

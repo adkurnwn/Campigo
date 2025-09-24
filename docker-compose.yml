@@ -1,0 +1,79 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campigo-app
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      APP_NAME: Campigo
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: campigo
+      DB_USERNAME: campigo_user
+      DB_PASSWORD: campigo_password
+    volumes:
+      - app-storage:/var/www/storage
+      - app-public:/var/www/public
+    networks:
+      - campigo
+    depends_on:
+      db:
+        condition: service_healthy
+
+  webserver:
+    image: nginx:alpine
+    container_name: campigo-webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - app-public:/var/www/public:ro
+      - app-storage:/var/www/storage:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/sites/:/etc/nginx/sites-available/:ro
+      - ./docker/nginx/ssl/:/etc/ssl/:ro
+    depends_on:
+      - app
+    networks:
+      - campigo
+
+  db:
+    image: mysql:8.0
+    container_name: campigo-db
+    restart: unless-stopped
+    expose:
+      - "3306"
+    environment:
+      MYSQL_DATABASE: campigo
+      MYSQL_USER: campigo_user
+      MYSQL_PASSWORD: campigo_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - campigo-db-data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - campigo
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
+
+volumes:
+  campigo-db-data:
+    driver: local
+  app-storage:
+    driver: local
+  app-public:
+    driver: local
+
+networks:
+  campigo:
+    driver: bridge

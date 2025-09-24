@@ -3,7 +3,7 @@
         class="py-4 px-6 flex justify-between items-center sticky top-0 z-[90] transition-colors duration-300"
         :class="{'bg-teal': isAtTop, 'bg-white bg-opacity-25 backdrop-filter backdrop-blur-lg': !isAtTop}">
         <router-link to="/" class="flex items-center gap-2">
-            <img src="/storage/app/public/img/campigo.png" alt="Campigo Logo" class="h-8 w-auto" />
+            <img :src="logoUrl" alt="Campigo Logo" class="h-8 w-auto" />
             <div class="text-2xl font-bold text-teal-600">
                 Campigo
             </div>
@@ -294,6 +294,7 @@
 <script>
 import CartModal from '../components/CartModal.vue';
 import { ref } from 'vue';
+import campigoLogo from '../../assets/img/campigo.png';
 
 export default {
     name: 'Header',
@@ -308,7 +309,7 @@ export default {
             showLogoutModal: false,
             cartCount: 0,
             isAtTop: true,
-            //logoUrl: "/storage/app/public/img/herocampigo.png" // Update path based on your public directory structure
+            logoUrl: campigoLogo
         }
     },
     setup() {

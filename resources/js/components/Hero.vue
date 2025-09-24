@@ -23,7 +23,7 @@
       <!-- Right Image -->
       <div class="w-full lg:w-2/3 py-2">
         <img
-            src="/storage/app/public/img/herocampigo.png"
+            :src="heroImageUrl"
           alt="Outdoor adventure scene" class="w-full h-auto rounded-lg shadow-lg object-cover" loading="lazy" />
       </div>
     </div>
@@ -31,7 +31,14 @@
 </template>
 
 <script>
+import heroCampigoImage from '../../assets/img/herocampigo.png';
+
 export default {
-  name: 'Hero'
+  name: 'Hero',
+  data() {
+    return {
+      heroImageUrl: heroCampigoImage
+    }
+  }
 }
 </script>
