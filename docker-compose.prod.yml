@@ -1,35 +1,23 @@
 services:
   app:
-    image: adkurnwn/campigo:dev-actions-${IMAGE_TAG:-latest}
+    image: adkurnwn/campigo:${IMAGE_TAG}
     container_name: campigo-app
     restart: unless-stopped
     working_dir: /var/www
     environment:
       APP_NAME: Campigo
-      APP_ENV: production  
+      APP_ENV: production
       APP_DEBUG: "false"
-      APP_URL: ${APP_URL:-http://localhost}
-      APP_KEY: ${APP_KEY}
+      APP_URL: http://localhost
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306
-      DB_DATABASE: ${DB_DATABASE:-campigo}
-      DB_USERNAME: ${DB_USERNAME:-campigo_user}
-      DB_PASSWORD: ${DB_PASSWORD}
-      LOG_CHANNEL: stack
-      LOG_LEVEL: error
-      MAIL_MAILER: ${MAIL_MAILER:-log}
-      MAIL_HOST: ${MAIL_HOST:-localhost}
-      MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-tls}
-      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-noreply@campigo.com}
-      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Campigo}
+      DB_DATABASE: campigo
+      DB_USERNAME: campigo_user
+      DB_PASSWORD: campigo_password
     volumes:
       - app-storage:/var/www/storage
       - app-public:/var/www/public
-      - app-logs:/var/www/storage/logs
     networks:
       - campigo
     depends_on:
@@ -41,8 +29,7 @@ services:
     container_name: campigo-webserver
     restart: unless-stopped
     ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
+      - "80:80"
     volumes:
       - app-public:/var/www/public:ro
       - app-storage:/var/www/storage:ro
@@ -53,11 +40,6 @@ services:
       - app
     networks:
       - campigo
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health-check"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   db:
     image: mysql:8.0
@@ -66,18 +48,17 @@ services:
     expose:
       - "3306"
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-campigo}
-      MYSQL_USER: ${DB_USERNAME:-campigo_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: campigo
+      MYSQL_USER: campigo_user
+      MYSQL_PASSWORD: campigo_password
+      MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - campigo-db-data:/var/lib/mysql
       - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
-      - ./backups/mysql:/backups
     networks:
       - campigo
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
       timeout: 20s
       retries: 10
       interval: 10s
@@ -89,8 +70,6 @@ volumes:
   app-storage:
     driver: local
   app-public:
-    driver: local
-  app-logs:
     driver: local
 
 networks:

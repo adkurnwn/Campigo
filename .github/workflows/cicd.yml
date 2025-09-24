@@ -82,23 +82,8 @@ jobs:
               curl -L -o docker-compose.prod.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.prod.yml
             fi
             
-            # Download environment file example if .env doesn't exist
-            if [ ! -f ".env" ]; then
-              echo "📥 Downloading environment template..."
-              curl -L -o .env.example https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/.env.example
-              echo "⚠️  Please configure .env file before running deployment!"
-              echo "   cp .env.example .env"
-              echo "   nano .env"
-              exit 1
-            fi
-            
-            # Load environment variables
-            set -a
-            source .env
-            set +a
-            
-            # Create backup directory
-            mkdir -p ./backups
+            # Set IMAGE_TAG for docker-compose
+            echo "IMAGE_TAG=$IMAGE_TAG" > .env
             
             # Pull latest images
             echo "📦 Pulling latest Docker images..."
