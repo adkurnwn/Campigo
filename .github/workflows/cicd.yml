@@ -87,21 +87,21 @@ jobs:
             
             # Pull latest images
             echo "📦 Pulling latest Docker images..."
-            docker-compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml pull
             
             # Stop services gracefully
             echo "🛑 Stopping current services..."
-            docker-compose -f docker-compose.prod.yml down --timeout 30
+            docker compose -f docker-compose.prod.yml down --timeout 30
             
             # Start services
             echo "🚀 Starting services..."
-            docker-compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml up -d
             
             # Wait for services to be healthy
             echo "⏳ Waiting for services to become healthy..."
             timeout 300 bash -c '
               while true; do
-                if docker-compose -f docker-compose.prod.yml ps | grep -q "Up.*healthy"; then
+                if docker compose -f docker-compose.prod.yml ps | grep -q "Up.*healthy"; then
                   echo "✅ Services are healthy"
                   break
                 fi
@@ -112,7 +112,7 @@ jobs:
             
             # Verify deployment
             echo "🔍 Verifying deployment..."
-            docker-compose -f docker-compose.prod.yml ps
+            docker compose -f docker-compose.prod.yml ps
             
             # Clean up old images
             echo "🧹 Cleaning up old Docker images..."
