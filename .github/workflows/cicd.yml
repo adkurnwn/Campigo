@@ -82,6 +82,12 @@ jobs:
               curl -L -o docker-compose.prod.yml https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker-compose.prod.yml
             fi
             
+            # Download nginx configuration files
+            echo "📥 Downloading nginx configuration..."
+            mkdir -p docker/nginx/sites docker/nginx/ssl
+            curl -L -o docker/nginx/nginx.conf https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker/nginx/nginx.conf || echo "nginx.conf not found, using default"
+            curl -L -o docker/mysql/my.cnf https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/docker/mysql/my.cnf || echo "my.cnf not found, using default"
+            
             # Set IMAGE_TAG for docker-compose
             echo "IMAGE_TAG=$IMAGE_TAG" > .env
             
